@@ -23,7 +23,7 @@ sub read_unsigned_long {
 
 sub read_byte {
     sysread($fh, my $buf, 1);
-    return sprintf("%x", unpack('c', $buf));
+    return sprintf("%02x", unpack('c', $buf));
 }
 
 sub main {
@@ -48,27 +48,27 @@ sub main {
         # 0x0A: CONSTANT_Methodref 
         # 0x09: CONSTANT_Fieldref
         # 0x0B: CONSTANT_InterfaceMethodref
-        if ($tag eq '9' | $tag eq 'a' | $tag eq 'b') {
+        if ($tag eq '09' | $tag eq '0a' | $tag eq '0b') {
             $entry{class_index} = read_unsigned_short();
             $entry{name_and_type_index} = read_unsigned_short();
         }
         # 0x08: CONSTANT_String
-        elsif ($tag eq '8') {
+        elsif ($tag eq '08') {
             $entry{string_index} = read_unsigned_short();
         }
         # 0x07: CONSTANT_Class
-        elsif ($tag eq '7') {
+        elsif ($tag eq '07') {
             $entry{name_index} = read_unsigned_short();
         }
         # 0x01: CONSTANT_Utf8
-        elsif ($tag eq '1') {
+        elsif ($tag eq '01') {
             my $length = hex(read_unsigned_short());
             sysread($fh, my $buf, $length);
             my @unpackeds = unpack("c[$length]", $buf); # unpackはスカラコンテキストでは最初の値しか返さない http://www5b.biglobe.ne.jp/~sgi/perl/framec/pl511.html
             $entry{string} = join('', map {chr($_)} @unpackeds);
         }        
         # 0x0C: CONSTANT_NameAndType
-        elsif ($tag eq 'c') {
+        elsif ($tag eq '0c') {
             $entry{name_index} = read_unsigned_short();
             $entry{descriptor_index} = read_unsigned_short();
         }    
