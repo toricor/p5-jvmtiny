@@ -48,6 +48,7 @@ sub read_attribute {
         my $len = hex($result{code_length});
 
         sysread($fh, my $buf, $len);
+        use DDP;my @a = unpack("C[$len]", $buf); map {my $t = sprintf("%02X", $_); p $t;} @a; print "\n";
         $result{code} = $buf;
 
         $result{exception_table_length} = read_unsigned_short();
@@ -72,9 +73,9 @@ sub read_attribute {
     }
     # LineNumberTable Attribute
     elsif ($name eq 'LineNumberTable') {
-        $result{line_number_table} = read_unsigned_short();
+        $result{line_number_table_length} = read_unsigned_short();
         my @line_number_tables;
-        for my $i (1..hex($result{line_number_table})) {
+        for my $i (1..hex($result{line_number_table_length})) {
             push @line_number_tables, +{
                 start_pc    => read_unsigned_short(),
                 line_number => read_unsigned_short(),
