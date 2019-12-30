@@ -44,17 +44,46 @@ sub read_attribute {
 
         sysread($fh, my $buf, $len);
         $result{code} = $buf;
-        use DDP;
-        p %result;
+
+        $result{exception_table_length} = read_unsigned_short();
+        my @exception_tables;
+        for my $i (1..hex($result{exception_table_length})){
+            my %exception_table;
+            $exception_table{start_pc}   = read_unsigned_short();
+            $exception_table{end_pc}     = read_unsigned_short();
+            $exception_table{handler_pc} = read_unsigned_short();
+            $exception_table{catch_type} = read_unsigned_short();
+            push @exception_tables, \%exception_table;
+        }
+        $result{exception_tables} = \@exception_tables;
+
+        $result{attributes_count} = read_unsigned_short();
+        my @attributes;
+        for my $i (1..hex($result{attributes_count})) {
+            my $attribute = read_attribute($constant_pool_entries);
+            push @attributes, $attribute;
+        }
+        $result{attributes} = \@attributes;
     }
     # LineNumberTable Attribute
     elsif ($name eq 'LineNumberTable') {
-
+        $result{line_number_table} = read_unsigned_short();
+        my @line_number_tables;
+        for my $i (1..hex($result{line_number_table})) {
+            my %line_number_table;
+            $line_number_table{start_pc}    = read_unsigned_short();
+            $line_number_table{line_number} = read_unsigned_short();
+            push @line_number_tables, \%line_number_table;
+        }
+        $result{line_number_tables} = \@line_number_tables;
     }
     # SourceFile Attribute
     elsif ($name eq 'SourceFile') {
-    
+        $result{sourcefile_index} = read_unsigned_short();
     }
+    use DDP;
+    p %result;
+    return \%result;
 }
 
 sub main {
@@ -132,7 +161,7 @@ sub main {
 
     # method_info https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.6
     my @methods;
-    for my $i (1..$methods_count) {
+    for (1..$methods_count) {
         my %method;
         $method{access_flags}     = read_unsigned_short();      # メソッドへのアクセス権 (<init>: 0x00)
         $method{name_index}       = $constant_pool_entries[hex(read_unsigned_short())]{string}; # メソッド名
@@ -140,12 +169,11 @@ sub main {
         my $attributes_count      = hex(read_unsigned_short()); # 属性の数
         
         $method{attribute_info} = [];
-        for my $j (1..$attributes_count) {
+        for (1..$attributes_count) {
             push @{$method{attribute_info}}, read_attribute(\@constant_pool_entries);    
         }
         push @methods, \%method;
     }
-    p @methods;
 }
 
 main();
