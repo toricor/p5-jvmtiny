@@ -1,8 +1,11 @@
 use strict;
 use utf8;
 use warnings;
+use lib './lib';
+use Opcode;
 use Test::Spec;
 
+# Java8
 my @constant_pool_entries = (
     +{},
     +{ #1
@@ -126,9 +129,18 @@ my @constant_pool_entries = (
 );
 
 describe 'opcode' => sub {
-    use DDP;
-    p @constant_pool_entries;
-    it 'getstatic';
+    before all => sub {
+        my @vals = map {hex($_)} qw/B2 00 02 12 03 B6 00 04 B1/; # main
+        my $packed = pack("C*", @vals);
+        my $code = Opcode->new(+{
+            constant_pool_entries => \@constant_pool_entries,
+            raw_code => $packed,
+            raw_code_length => scalar(@vals),
+        });
+    };
+    it 'getstatic' => sub {
+        ok 1;
+    };
 };
 
 runtests unless caller;
