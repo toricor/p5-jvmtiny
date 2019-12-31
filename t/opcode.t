@@ -130,13 +130,14 @@ my @constant_pool_entries = (
 
 describe 'opcode' => sub {
     before all => sub {
-        my @vals = map {hex($_)} qw/B2 00 02 12 03 B6 00 04 B1/; # main
+        my @vals   = map {hex($_)} qw/B2 00 02 12 03 B6 00 04 B1/; # main
         my $packed = pack("C*", @vals);
         my $code = Opcode->new(+{
             constant_pool_entries => \@constant_pool_entries,
             raw_code => $packed,
             raw_code_length => scalar(@vals),
         });
+        $code->run();
     };
     it 'getstatic' => sub {
         ok 1;
