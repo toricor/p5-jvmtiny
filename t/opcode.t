@@ -155,7 +155,23 @@ describe 'opcode' => sub {
                 raw_code_length => scalar(@vals),
             });
             $code->run();
-            use DDP; p $code->_operand_stack;
+        };
+        it 'should HOGE' => sub {
+            ok 1;
+        };
+
+    };
+
+    context 'invokevirtual' => sub {
+        before all => sub {
+            my @vals   = map {hex($_)} qw/B2 00 02 12 03 B6 00 04/;
+            my $packed = pack("C*", @vals);
+            my $code = Opcode->new(+{
+                constant_pool_entries => \@constant_pool_entries,
+                raw_code => $packed,
+                raw_code_length => scalar(@vals),
+            });
+            $code->run();
         };
         it 'should HOGE' => sub {
             ok 1;

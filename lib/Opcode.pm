@@ -80,8 +80,8 @@ sub run {
 sub getstatic {
     my ($self, $indexbyte1, $indexbyte2) = @_;
     my $constant_pool_entries = $self->constant_pool_entries;
-    my $constant_pool_index = int($indexbyte1.$indexbyte2); # XXX:FIXME
-    my $symbol_name_hash    = $constant_pool_entries->[hex($constant_pool_index)];
+    my $constant_pool_index   = $self->_index_by_byte1_and_byte2($indexbyte1, $indexbyte2);
+    my $symbol_name_hash      = $constant_pool_entries->[hex($constant_pool_index)];
 
     # java/lang/System
     my $callee_class = $constant_pool_entries->[hex($constant_pool_entries->[hex($symbol_name_hash->{class_index})]->{name_index})]->{string};
@@ -93,9 +93,10 @@ sub getstatic {
     my $method_return = $constant_pool_entries->[hex($constant_pool_entries->[hex($symbol_name_hash->{name_and_type_index})]->{descriptor_index})]->{string};
 
     $callee_class =~ s/\//::/g;
-
+use DDP;
+p $callee_class;
     push @{$self->_operand_stack}, +{
-        callable => +{},#$callee_class->$field,
+        callable => +{}, #+{$callee_class->$field => 1},
         return   => $method_return,
     };
 
@@ -106,6 +107,7 @@ sub getstatic {
 sub ldc {
     my ($self, $index) = @_;
      my $constant_pool_entries = $self->constant_pool_entries;
+
      my $symbol_name_hash = $constant_pool_entries->[hex($index)];
 
      # Hello World !
@@ -116,7 +118,23 @@ sub ldc {
 # 0xb6
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.invokevirtual
 sub invokevirtual {
-    my ($self) = @_;
+    my ($self, $indexbyte1, $indexbyte2) = @_;
+    my $constant_pool_entries = $self->constant_pool_entries;
+    my $constant_pool_index   = $self->_index_by_byte1_and_byte2($indexbyte1, $indexbyte2);
+    my $symbol_name_hash = $constant_pool_entries->[hex($constant_pool_index)];
+
+    my $callee_info = $constant_pool_entries->[hex($symbol_name_hash->{name_and_type_index})];
+    my $method_name = $constant_pool_entries->[hex($callee_info->{name_index})]->{string};
+
+    my $argments_string = $constant_pool_entries->[hex($callee_info->{descriptor_index})]->{string};
+    my $argments_size = (() = $argments_string =~ m/;/g); # https://shogo82148.github.io/blog/2015/04/09/count-substrings-in-perl/
+    
+    my @argments;
+    for (1..$argments_size) {
+        push @argments, pop @{$self->_operand_stack}, # XXX: pop order (本当は逆からpopする必要がある) https://speakerdeck.com/memory1994/php-de-jvm-woshi-zhuang-site-hello-world-wochu-li-surumade?slide=150
+    }
+    my $method = pop @{$self->_operand_stack};
+    
 }
 
 # 0xb1
@@ -126,6 +144,11 @@ sub return {
     return;
 }
 
+# private
+sub _index_by_byte1_and_byte2 {
+    my ($self, $indexbyte1, $indexbyte2) = @_;
+    return int($indexbyte1.$indexbyte2); # XXX:FIXME
+}
 
 no Mouse;
 __PACKAGE__->meta->make_immutable;
