@@ -129,18 +129,38 @@ my @constant_pool_entries = (
 );
 
 describe 'opcode' => sub {
-    before all => sub {
-        my @vals   = map {hex($_)} qw/B2 00 02 12 03 B6 00 04 B1/; # main
-        my $packed = pack("C*", @vals);
-        my $code = Opcode->new(+{
-            constant_pool_entries => \@constant_pool_entries,
-            raw_code => $packed,
-            raw_code_length => scalar(@vals),
-        });
-        $code->run();
+    context 'getstatic' => sub {
+        before all => sub {
+            my @vals   = map {hex($_)} qw/B2 00 02/;
+            my $packed = pack("C*", @vals);
+            my $code = Opcode->new(+{
+                constant_pool_entries => \@constant_pool_entries,
+                raw_code => $packed,
+                raw_code_length => scalar(@vals),
+            });
+            $code->run();
+        };
+        it 'should HOGE' => sub {
+            ok 1;
+        };
     };
-    it 'getstatic' => sub {
-        ok 1;
+
+    context 'ldc' => sub {
+        before all => sub {
+            my @vals   = map {hex($_)} qw/12 03/;
+            my $packed = pack("C*", @vals);
+            my $code = Opcode->new(+{
+                constant_pool_entries => \@constant_pool_entries,
+                raw_code => $packed,
+                raw_code_length => scalar(@vals),
+            });
+            $code->run();
+            use DDP; p $code->_operand_stack;
+        };
+        it 'should HOGE' => sub {
+            ok 1;
+        };
+
     };
 };
 

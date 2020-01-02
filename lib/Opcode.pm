@@ -79,12 +79,38 @@ sub run {
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.getstatic
 sub getstatic {
     my ($self, $indexbyte1, $indexbyte2) = @_;
+    my $constant_pool_entries = $self->constant_pool_entries;
+    my $constant_pool_index = int($indexbyte1.$indexbyte2); # XXX:FIXME
+    my $symbol_name_hash    = $constant_pool_entries->[hex($constant_pool_index)];
+
+    # java/lang/System
+    my $callee_class = $constant_pool_entries->[hex($constant_pool_entries->[hex($symbol_name_hash->{class_index})]->{name_index})]->{string};
+
+    # out
+    my $field = $constant_pool_entries->[hex($constant_pool_entries->[hex($symbol_name_hash->{name_and_type_index})]->{name_index})]->{string};
+
+    # out fieldの型情報(Ljava/io/PrintStream;)
+    my $method_return = $constant_pool_entries->[hex($constant_pool_entries->[hex($symbol_name_hash->{name_and_type_index})]->{descriptor_index})]->{string};
+
+    $callee_class =~ s/\//::/g;
+
+    push @{$self->_operand_stack}, +{
+        callable => +{},#$callee_class->$field,
+        return   => $method_return,
+    };
+
 }
 
 # 0x12
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.ldc
 sub ldc {
-    my ($self) = @_;
+    my ($self, $index) = @_;
+     my $constant_pool_entries = $self->constant_pool_entries;
+     my $symbol_name_hash = $constant_pool_entries->[hex($index)];
+
+     # Hello World !
+     my $string = $constant_pool_entries->[hex($symbol_name_hash->{string_index})]->{string};
+     push @{$self->_operand_stack}, $string;
 }
 
 # 0xb6
