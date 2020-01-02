@@ -1,6 +1,8 @@
 package Opcode;
 use Mouse;
 
+use java::lang::System;
+
 # constant pool
 has constant_pool_entries => (
     is       => 'ro',
@@ -93,10 +95,9 @@ sub getstatic {
     my $method_return = $constant_pool_entries->[hex($constant_pool_entries->[hex($symbol_name_hash->{name_and_type_index})]->{descriptor_index})]->{string};
 
     $callee_class =~ s/\//::/g;
-use DDP;
-p $callee_class;
+
     push @{$self->_operand_stack}, +{
-        callable => +{}, #+{$callee_class->$field => 1},
+        callable => $callee_class->new()->$field,
         return   => $method_return,
     };
 
@@ -133,8 +134,9 @@ sub invokevirtual {
     for (1..$argments_size) {
         push @argments, pop @{$self->_operand_stack}, # XXX: pop order (本当は逆からpopする必要がある) https://speakerdeck.com/memory1994/php-de-jvm-woshi-zhuang-site-hello-world-wochu-li-surumade?slide=150
     }
+
     my $method = pop @{$self->_operand_stack};
-    
+    my $return = $method->{callable}->$method_name(@argments);
 }
 
 # 0xb1

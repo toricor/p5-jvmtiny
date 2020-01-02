@@ -2,6 +2,7 @@ use strict;
 use utf8;
 use warnings;
 use lib './lib';
+use java::lang::System;
 use Opcode;
 use Test::Spec;
 
