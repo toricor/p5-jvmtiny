@@ -71,7 +71,7 @@ sub run {
         }
         # TODO
         else {
-            die 'not implemented yet';
+            die "opcode:$opcode has not implemented yet";
         }
     }
 }

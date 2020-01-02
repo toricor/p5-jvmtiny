@@ -2,7 +2,10 @@
 use utf8;
 use strict;
 use warnings;
+use lib './lib';
+use Opcode;
 
+# javac -encoding UTF-8 HelloWorld.java
 my $file = 'HelloWorld.class';
 
 open my $fh, '<', $file or die $!;
@@ -48,7 +51,6 @@ sub read_attribute {
         my $len = hex($result{code_length});
 
         sysread($fh, my $buf, $len);
-        use DDP;my @a = unpack("C[$len]", $buf); map {my $t = sprintf("%02X", $_); p $t;} @a; print "\n";
         $result{code} = $buf;
 
         $result{exception_table_length} = read_unsigned_short();
@@ -64,6 +66,7 @@ sub read_attribute {
         $result{exception_tables} = \@exception_tables;
 
         $result{attributes_count} = read_unsigned_short();
+
         my @attributes;
         for my $i (1..hex($result{attributes_count})) {
             my $attribute = read_attribute($constant_pool_entries);
@@ -74,6 +77,7 @@ sub read_attribute {
     # LineNumberTable Attribute
     elsif ($name eq 'LineNumberTable') {
         $result{line_number_table_length} = read_unsigned_short();
+
         my @line_number_tables;
         for my $i (1..hex($result{line_number_table_length})) {
             push @line_number_tables, +{
@@ -87,23 +91,29 @@ sub read_attribute {
     elsif ($name eq 'SourceFile') {
         $result{sourcefile_index} = read_unsigned_short();
     }
+    # TODO
+    else {
+        die 'unimplemented attribute';
+    }
 
     return \%result;
 }
 
 sub main {
-    # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4
+    # 1) READ CLASS FILE
+    # 2) RUN OPCODES
 
-    # header information
+    # READ CLASS FILE
+    ## https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4
+
+    ## header information
     my $magic = read_unsigned_int();
     my $minor = read_unsigned_short();
     my $major = read_unsigned_short();
 
-    # constant pool 
-    my @constant_pool_entries = (undef); # 後でアクセスしやすいように
+    ## constant pool 
+    my @constant_pool_entries = (+{}); # 後でアクセスしやすいように
     my $constant_pool_count = hex(read_unsigned_short());
-
-    die 'invalid value' unless $constant_pool_count == 29; 
 
     for my $i (1..$constant_pool_count-1) {
         my $tag = read_byte();
@@ -136,25 +146,26 @@ sub main {
         elsif ($tag eq '0c') {
             $entry{name_index} = read_unsigned_short();
             $entry{descriptor_index} = read_unsigned_short();
-        }    
+        }
+        # TODO
+        else {
+            die 'unimplemented tag';
+        }
+
         push @constant_pool_entries, +{
             tag => $tag,
             %entry,
         };
     }
-    use DDP;
-    p @constant_pool_entries;
 
     my $access_flags = read_unsigned_short();
-    die 'access_flag is wrong' unless $access_flags == 20;
    
     my $this_class  = read_unsigned_short(); # HelloWorld: 0x0005(Constant pool #5 // HelloWorld)
     my $super_class = read_unsigned_short(); # HelloWorld: 0x0006(Constant pool #6 // java/lang/Object
 
     my $interfaces_count = hex(read_unsigned_short()); # 0
-    read($fh, my $buf, $interfaces_count);
-    # unpackはスカラコンテキストでは最初の値しか返さない http://www5b.biglobe.ne.jp/~sgi/perl/framec/pl511.html
-    my @interfaces = unpack("n[$interfaces_count]", $buf); # (0)
+    sysread($fh, my $buf, $interfaces_count);
+    my @interfaces = unpack("n[$interfaces_count]", $buf); # (0) unpackはスカラコンテキストでは最初の値しか返さない http://www5b.biglobe.ne.jp/~sgi/perl/framec/pl511.html
 
     my $fields_count = hex(read_unsigned_short()); # 0
     for my $i (1..$fields_count) {
@@ -162,9 +173,8 @@ sub main {
     }
 
     my $methods_count = hex(read_unsigned_short());
-    die 'invalid methods count' unless $methods_count == 2; # <init> and main
 
-    # method_info https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.6
+    ## method_info https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.6
     my @methods;
     for (1..$methods_count) {
         my %method = (
@@ -179,17 +189,48 @@ sub main {
         }
         push @methods, \%method;
     }
-        use DDP;
-        p @methods;
 
     my $attribute_count = hex(read_unsigned_short());
     my @attributes;
     for (1..$attribute_count) {
         push @attributes, read_attribute(\@constant_pool_entries);
     }
-    p @attributes;
+
+
+    # RUN OPCODES
+    # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html
+    for my $method (@methods) {
+        next if $method->{access_flags} eq '00'; # FIXME # 静的メソッドなのでコンストラクタは呼ばれないように
+
+        for my $attribute_info (@{$method->{attribute_info}}) {
+            my $code = Opcode->new(+{
+                constant_pool_entries => \@constant_pool_entries,
+                raw_code              => $attribute_info->{code},
+                raw_code_length       => $attribute_info->{code_length},
+            });
+            $code->run();
+        }
+    }
 }
 
 main();
 
 close($fh);
+
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 SYNOPSIS
+
+carton install
+carton exec perl main.pl
+
+=head1 DESCRIPTION
+
+    JVM by Perl;
+    just HelloWorld
+
+=cut

@@ -4,7 +4,7 @@ use feature qw/say/;
 
 sub println {
     my ($self, $args) = @_;
-    warn $args;
+    say $args;
 }
 
 no Mouse;
