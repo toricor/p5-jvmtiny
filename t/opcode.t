@@ -5,7 +5,7 @@ use lib './lib';
 use Opcode;
 use Test::Spec;
 
-# Java8
+# Java8 (javac -encoding UTF-8 HelloWorld.java)
 my @constant_pool_entries = (
     +{},
     +{ #1
@@ -140,7 +140,7 @@ describe 'opcode' => sub {
             });
             $code->run();
         };
-        it 'should HOGE' => sub {
+        it 'can run' => sub {
             ok 1;
         };
     };
@@ -156,7 +156,7 @@ describe 'opcode' => sub {
             });
             $code->run();
         };
-        it 'should HOGE' => sub {
+        it 'can run' => sub {
             ok 1;
         };
 
@@ -173,10 +173,9 @@ describe 'opcode' => sub {
             });
             $code->run();
         };
-        it 'should HOGE' => sub {
+        it 'can run' => sub {
             ok 1;
         };
-
     };
 };
 

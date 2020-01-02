@@ -157,52 +157,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.006
-  List-AllUtils-0.15
-    pathname: D/DR/DROLSKY/List-AllUtils-0.15.tar.gz
-    provides:
-      List::AllUtils 0.15
-    requirements:
-      Exporter 0
-      ExtUtils::MakeMaker 0
-      List::SomeUtils 0.56
-      List::Util 1.45
-      List::UtilsBy 0.11
-      base 0
-      strict 0
-      warnings 0
-  List-SomeUtils-0.58
-    pathname: D/DR/DROLSKY/List-SomeUtils-0.58.tar.gz
-    provides:
-      List::SomeUtils 0.58
-      List::SomeUtils::PP 0.58
-    requirements:
-      Carp 0
-      Exporter 0
-      ExtUtils::MakeMaker 0
-      List::SomeUtils::XS 0.54
-      List::Util 0
-      Module::Implementation 0
-      Text::ParseWords 0
-      perl 5.006
-      strict 0
-      vars 0
-      warnings 0
-  List-SomeUtils-XS-0.58
-    pathname: D/DR/DROLSKY/List-SomeUtils-XS-0.58.tar.gz
-    provides:
-      List::SomeUtils::XS 0.58
-    requirements:
-      ExtUtils::MakeMaker 0
-      XSLoader 0
-      strict 0
-      warnings 0
-  List-UtilsBy-0.11
-    pathname: P/PE/PEVANS/List-UtilsBy-0.11.tar.gz
-    provides:
-      List::UtilsBy 0.11
-    requirements:
-      Exporter 5.57
-      Module::Build 0.4004
   Mac-SystemDirectory-0.13
     pathname: E/ET/ETHER/Mac-SystemDirectory-0.13.tar.gz
     provides:
