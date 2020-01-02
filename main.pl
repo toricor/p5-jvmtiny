@@ -226,11 +226,11 @@ __END__
 =head1 SYNOPSIS
 
 carton install
-carton exec perl main.pl
+carton exec perl main.pl or ./dev_env.sh perl main.pl
 
 =head1 DESCRIPTION
 
     JVM by Perl;
-    just HelloWorld
+    read HelloWorld.class and run it
 
 =cut
