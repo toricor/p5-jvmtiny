@@ -156,8 +156,7 @@ sub main {
             %entry,
         };
     }
-use DDP;
-p @constant_pool_entries;
+
     my $access_flags = read_unsigned_short();
 
     my $this_class  = read_unsigned_short(); # HelloWorld: 0x0005(Constant pool #5 // HelloWorld)
