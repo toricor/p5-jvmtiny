@@ -83,16 +83,16 @@ sub getstatic {
     my ($self, $indexbyte1, $indexbyte2) = @_;
     my $constant_pool_entries = $self->constant_pool_entries;
     my $constant_pool_index   = $self->_index_by_byte1_and_byte2($indexbyte1, $indexbyte2);
-    my $symbol_name_hash      = $constant_pool_entries->[hex($constant_pool_index)];
+    my $symbol_name_hash      = $constant_pool_entries->[$constant_pool_index];
 
     # java/lang/System
-    my $callee_class = $constant_pool_entries->[hex($constant_pool_entries->[hex($symbol_name_hash->{class_index})]->{name_index})]->{string};
+    my $callee_class = $constant_pool_entries->[$constant_pool_entries->[$symbol_name_hash->{class_index}]->{name_index}]->{string};
 
     # out
-    my $field = $constant_pool_entries->[hex($constant_pool_entries->[hex($symbol_name_hash->{name_and_type_index})]->{name_index})]->{string};
+    my $field = $constant_pool_entries->[$constant_pool_entries->[$symbol_name_hash->{name_and_type_index}]->{name_index}]->{string};
 
     # out fieldの型情報(Ljava/io/PrintStream;)
-    my $method_return = $constant_pool_entries->[hex($constant_pool_entries->[hex($symbol_name_hash->{name_and_type_index})]->{descriptor_index})]->{string};
+    my $method_return = $constant_pool_entries->[$constant_pool_entries->[$symbol_name_hash->{name_and_type_index}]->{descriptor_index}]->{string};
 
     $callee_class =~ s/\//::/g;
 
@@ -109,10 +109,10 @@ sub ldc {
     my ($self, $index) = @_;
      my $constant_pool_entries = $self->constant_pool_entries;
 
-     my $symbol_name_hash = $constant_pool_entries->[hex($index)];
+     my $symbol_name_hash = $constant_pool_entries->[$index];
 
      # Hello World !
-     my $string = $constant_pool_entries->[hex($symbol_name_hash->{string_index})]->{string};
+     my $string = $constant_pool_entries->[$symbol_name_hash->{string_index}]->{string};
      push @{$self->_operand_stack}, $string;
 }
 
@@ -122,12 +122,12 @@ sub invokevirtual {
     my ($self, $indexbyte1, $indexbyte2) = @_;
     my $constant_pool_entries = $self->constant_pool_entries;
     my $constant_pool_index   = $self->_index_by_byte1_and_byte2($indexbyte1, $indexbyte2);
-    my $symbol_name_hash = $constant_pool_entries->[hex($constant_pool_index)];
+    my $symbol_name_hash = $constant_pool_entries->[$constant_pool_index];
 
-    my $callee_info = $constant_pool_entries->[hex($symbol_name_hash->{name_and_type_index})];
-    my $method_name = $constant_pool_entries->[hex($callee_info->{name_index})]->{string};
+    my $callee_info = $constant_pool_entries->[$symbol_name_hash->{name_and_type_index}];
+    my $method_name = $constant_pool_entries->[$callee_info->{name_index}]->{string};
 
-    my $argments_string = $constant_pool_entries->[hex($callee_info->{descriptor_index})]->{string};
+    my $argments_string = $constant_pool_entries->[$callee_info->{descriptor_index}]->{string};
     my $argments_size = (() = $argments_string =~ m/;/g); # https://shogo82148.github.io/blog/2015/04/09/count-substrings-in-perl/
     
     my @argments;
@@ -149,7 +149,7 @@ sub return {
 # private
 sub _index_by_byte1_and_byte2 {
     my ($self, $indexbyte1, $indexbyte2) = @_;
-    return int($indexbyte1.$indexbyte2); # XXX:FIXME
+    return $indexbyte1.$indexbyte2; # XXX:FIXME
 }
 
 no Mouse;
