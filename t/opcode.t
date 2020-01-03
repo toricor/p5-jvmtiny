@@ -9,30 +9,30 @@ use Test::Spec;
 my @constant_pool_entries = (
     +{},
     +{ #1
-        class_index          => "06",
-        name_and_type_index  => "0f",
+        class_index          => 6,
+        name_and_type_index  => 15,
         tag                  => "0a",
     },
     +{ #2
-        class_index           => "10",
-        name_and_type_index   => "11",
+        class_index           => 16,
+        name_and_type_index   => 17,
         tag                   => "09"
     },
     +{ #3
-        string_index   => 12,
+        string_index   => 18,
         tag            => "08"
     },
     +{ #4
-        class_index          => 13,
-        name_and_type_index  => 14,
+        class_index          => 19,
+        name_and_type_index  => 20,
         tag                  => "0a"
     },
     +{ #5
-        name_index   => 15,
+        name_index   => 21,
         tag          => "07"
     },
     +{ #6
-        name_index   => 16,
+        name_index   => 22,
         tag          => "07"
     },
     +{ #7
@@ -68,17 +68,17 @@ my @constant_pool_entries = (
         tag      => "01"
     },
     +{ #15
-        descriptor_index   => "08",
-        name_index         => "07",
+        descriptor_index   => 8,
+        name_index         => 7,
         tag                => "0c"
     },
     +{ #16
-        name_index   => 17,
+        name_index   => 23,
         tag          => "07"
     },
     +{ #17
-        descriptor_index   => 19,
-        name_index         => 18,
+        descriptor_index   => 25,
+        name_index         => 24,
         tag                => "0c"
     },
     +{ #18
@@ -86,12 +86,12 @@ my @constant_pool_entries = (
         tag      => "01"
     },
     +{ #19
-        name_index   => "1a",
+        name_index   => 26,
         tag          => "07"
     },
     +{ #20
-        descriptor_index   => "1c",
-        name_index         => "1b",
+        descriptor_index   => 28,
+        name_index         => 27,
         tag                => "0c"
     },
     +{ #21
