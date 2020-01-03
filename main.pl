@@ -5,8 +5,8 @@ use warnings;
 use lib './lib';
 use Opcode;
 
-# javac -encoding UTF-8 HelloWorld.java
-my $file = 'HelloWorld.class';
+# javac -encoding UTF-8 example/HelloWorld.java
+my $file = 'example/HelloWorld.class';
 
 open my $fh, '<', $file or die $!;
 binmode $fh;
@@ -139,7 +139,7 @@ sub main {
         elsif ($tag eq '01') {
             my $length = hex(read_unsigned_short());
             sysread($fh, my $buf, $length);
-            my @unpackeds = unpack("c[$length]", $buf); # unpackはスカラコンテキストでは最初の値しか返さない http://www5b.biglobe.ne.jp/~sgi/perl/framec/pl511.html
+            my @unpackeds = unpack("c[$length]", $buf);
             $entry{string} = join('', map {chr($_)} @unpackeds);
         }        
         # 0x0C: CONSTANT_NameAndType
@@ -165,7 +165,7 @@ sub main {
 
     my $interfaces_count = hex(read_unsigned_short()); # 0
     sysread($fh, my $buf, $interfaces_count);
-    my @interfaces = unpack("n[$interfaces_count]", $buf); # (0) unpackはスカラコンテキストでは最初の値しか返さない http://www5b.biglobe.ne.jp/~sgi/perl/framec/pl511.html
+    my @interfaces = unpack("n[$interfaces_count]", $buf);
 
     my $fields_count = hex(read_unsigned_short()); # 0
     for my $i (1..$fields_count) {
@@ -180,7 +180,7 @@ sub main {
         my %method = (
             access_flags     => read_unsigned_short(),     # メソッドへのアクセス権 (<init>: 0x00)
             name_index       => $constant_pool_entries[hex(read_unsigned_short())]{string}, # メソッド名
-            descriptor_index => $constant_pool_entries[hex(read_unsigned_short())]{string},# 引数の情報
+            descriptor_index => $constant_pool_entries[hex(read_unsigned_short())]{string}, # 引数の情報
             attribute_info   => [],
         );
         my $attributes_count = hex(read_unsigned_short()); # 属性の数

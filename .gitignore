@@ -1,5 +1,4 @@
 .DS_Store
 local/
 
-HelloWorld.java
-HelloWorld.class
+*.class
