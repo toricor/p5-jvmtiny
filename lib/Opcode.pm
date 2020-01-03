@@ -2,6 +2,7 @@ package Opcode;
 use Mouse;
 
 use java::lang::System;
+use feature qw/state/;
 
 # constant pool
 has constant_pool_entries => (
@@ -36,10 +37,17 @@ has _code_array => (
 );
 
 has _operand_stack => (
-    is  => 'rw',
-    isa => 'ArrayRef',
+    is      => 'rw',
+    isa     => 'ArrayRef',
     default => sub {[]},
 );
+
+has _local_variables => (
+    is      => 'rw',
+    isa     => 'ArrayRef',
+    default => sub {[]},
+);
+
 
 sub run {
     my $self = shift;
@@ -68,6 +76,70 @@ sub run {
         # return
         elsif ($opcode eq 'b1') {
             $self->return();
+        }
+        # iconst_m1
+        elsif ($opcode eq '02') {
+            $self->iconst_i($opcode);
+        }
+        # iconst_0
+        elsif ($opcode eq '03') {
+            $self->iconst_i($opcode);
+        }
+        # iconst_1
+        elsif ($opcode eq '04') {
+            $self->iconst_i($opcode);
+        }
+        # iconst_2
+        elsif ($opcode eq '05') {
+            $self->iconst_i($opcode);
+        }
+        # iconst_3
+        elsif ($opcode eq '06') {
+            $self->iconst_i($opcode);
+        }
+        # iconst_4
+        elsif ($opcode eq '07') {
+            $self->iconst_i($opcode);
+        }
+        # iconst_5
+        elsif ($opcode eq '08') {
+            $self->iconst_i($opcode);
+        }
+        # istore_0
+        elsif ($opcode eq '3b') {
+            $self->istore_n($opcode);
+        }
+        # istore_1
+        elsif ($opcode eq '3c') {
+            $self->istore_n($opcode);
+        }
+        # istore_2
+        elsif ($opcode eq '3d') {
+            $self->istore_n($opcode);
+        }
+        # istore_3
+        elsif ($opcode eq '3e') {
+            $self->istore_n($opcode);
+        }
+        # iload_0
+        elsif ($opcode eq '1a') {
+            $self->iload_n($opcode);
+        }
+        # iload_1
+        elsif ($opcode eq '1b') {
+            $self->iload_n($opcode);
+        }
+        # iload_2
+        elsif ($opcode eq '1c') {
+            $self->iload_n($opcode);
+        }
+        # iload_3
+        elsif ($opcode eq '1d') {
+            $self->iload_n($opcode);
+        }
+        # iadd
+        elsif ($opcode eq '60') {
+            $self->iadd();
         }
         # TODO
         else {
@@ -136,6 +208,10 @@ sub invokevirtual {
     }
 
     my $method = pop @{$self->_operand_stack};
+    use DDP;
+    p $method;
+    p $method_name;
+    p @argments;
     my $return = $method->{callable}->$method_name(@argments);
 }
 
@@ -144,6 +220,64 @@ sub invokevirtual {
 sub return {
     my ($self) = @_;
     return;
+}
+
+# 0x2 ~ 0x8
+# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.iconst_i
+sub iconst_i {
+    my ($self, $opcode) = @_;
+
+    state $value_map; $value_map //= +{
+        '02' => -1,
+        '03' => 0,
+        '04' => 1,
+        '05' => 2,
+        '06' => 3,
+        '07' => 4,
+        '08' => 5,
+    };
+    push @{$self->_operand_stack}, $value_map->{$opcode};
+}
+
+# 0x3b ~ 0x3e
+# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.istore_n
+sub istore_n {
+    my ($self, $opcode) = @_;
+    state $store_map; $store_map //= +{
+        '3b' => 0,
+        '3c' => 1,
+        '3d' => 2,
+        '3e' => 3,
+    };
+    my $value = pop @{$self->_operand_stack};
+    my $index = $store_map->{$opcode};
+    $self->_local_variables->[$index] = $value;
+}
+
+# 0x1a ~ 0x1d
+# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.iload_n
+sub iload_n {
+    my ($self, $opcode) = @_;
+    state $load_map; $load_map //= +{
+        '1a' => 0,
+        '1b' => 1,
+        '1c' => 2,
+        '1d' => 3,
+    };
+    my $index = $load_map->{$opcode};
+    my $value = $self->_local_variables->[$index];
+    push @{$self->_operand_stack}, $value;
+}
+
+# 0x60
+# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.iadd
+sub iadd {
+    my ($self) = @_;
+
+    my $value1 = pop @{$self->_operand_stack};
+    my $value2 = pop @{$self->_operand_stack};
+    my $result = $value1 + $value2;
+    push @{$self->_operand_stack}, $result;
 }
 
 # private

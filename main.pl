@@ -4,9 +4,10 @@ use strict;
 use warnings;
 use lib './lib';
 use Opcode;
+use feature qw/state/;
 
 # javac -encoding UTF-8 example/HelloWorld.java
-my $file = 'example/HelloWorld.class';
+my $file = 'example/AddInt.class';
 
 open my $fh, '<', $file or die $!;
 binmode $fh;
@@ -156,7 +157,8 @@ sub main {
             %entry,
         };
     }
-
+use DDP;
+p @constant_pool_entries;
     my $access_flags = read_unsigned_short();
 
     my $this_class  = read_unsigned_short(); # HelloWorld: 0x0005(Constant pool #5 // HelloWorld)
