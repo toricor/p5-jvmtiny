@@ -1,12 +1,12 @@
 use strict;
 use utf8;
 use warnings;
-use lib './lib';
-use Opcode;
+
+use Frame;
 use Test::Spec;
 
 # Java8 (javac -encoding UTF-8 HelloWorld.java)
-my @constant_pool_entries = (
+my @hello_world_cp = (
     +{},
     +{ #1
         class_index          => 6,
@@ -128,53 +128,26 @@ my @constant_pool_entries = (
     }
 );
 
-describe 'opcode' => sub {
-    context 'getstatic' => sub {
+describe 'Frame.run' => sub {
+    context 'HelloWorld' => sub {
         before all => sub {
-            my @vals   = map {hex($_)} qw/B2 00 02/;
-            my $packed = pack("C*", @vals);
-            my $code = Opcode->new(+{
-                constant_pool_entries => \@constant_pool_entries,
-                raw_code => $packed,
-                raw_code_length => scalar(@vals),
+            my @values = map {hex($_)} (
+                qw/B2 00 02/, # getstatic
+                qw/12 03/,    # ldc
+                qw/B6 00 04/, # invokevirtual
+            );
+            my $packed = pack("C*", @values);
+            my $frame = Frame->new(+{
+                constant_pool_entries => \@hello_world_cp,
+                raw_code              => $packed,
+                raw_code_length       => scalar(@values),
             });
-            $code->run();
+            trap {
+                $frame->run();
+            };
         };
-        it 'can run' => sub {
-            ok 1;
-        };
-    };
-
-    context 'ldc' => sub {
-        before all => sub {
-            my @vals   = map {hex($_)} qw/12 03/;
-            my $packed = pack("C*", @vals);
-            my $code = Opcode->new(+{
-                constant_pool_entries => \@constant_pool_entries,
-                raw_code => $packed,
-                raw_code_length => scalar(@vals),
-            });
-            $code->run();
-        };
-        it 'can run' => sub {
-            ok 1;
-        };
-
-    };
-
-    context 'invokevirtual' => sub {
-        before all => sub {
-            my @vals   = map {hex($_)} qw/B2 00 02 12 03 B6 00 04/;
-            my $packed = pack("C*", @vals);
-            my $code = Opcode->new(+{
-                constant_pool_entries => \@constant_pool_entries,
-                raw_code => $packed,
-                raw_code_length => scalar(@vals),
-            });
-            $code->run();
-        };
-        it 'can run' => sub {
-            ok 1;
+        it 'should show "Hello World!\n"' => sub {
+            is $trap->stdout, "Hello World!\n";
         };
     };
 };

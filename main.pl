@@ -3,8 +3,8 @@ use utf8;
 use strict;
 use warnings;
 use lib './lib';
-use Opcode;
-use feature qw/state/;
+use Frame;
+use feature qw/say state/;
 
 # javac -encoding UTF-8 example/HelloWorld.java
 my $file = 'example/AddInt.class';
@@ -157,8 +157,7 @@ sub main {
             %entry,
         };
     }
-use DDP;
-p @constant_pool_entries;
+
     my $access_flags = read_unsigned_short();
 
     my $this_class  = read_unsigned_short(); # HelloWorld: 0x0005(Constant pool #5 // HelloWorld)
@@ -204,7 +203,7 @@ p @constant_pool_entries;
         next if $method->{access_flags} == 0; # FIXME # 静的メソッドなのでコンストラクタは呼ばれないように
 
         for my $attribute_info (@{$method->{attribute_info}}) {
-            my $code = Opcode->new(+{
+            my $code = Frame->new(+{
                 constant_pool_entries => \@constant_pool_entries,
                 raw_code              => $attribute_info->{code},
                 raw_code_length       => $attribute_info->{code_length},

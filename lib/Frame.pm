@@ -1,4 +1,4 @@
-package Opcode;
+package Frame;
 use Mouse;
 
 use java::lang::System;
@@ -200,18 +200,18 @@ sub invokevirtual {
     my $method_name = $constant_pool_entries->[$callee_info->{name_index}]->{string};
 
     my $argments_string = $constant_pool_entries->[$callee_info->{descriptor_index}]->{string};
-    my $argments_size = (() = $argments_string =~ m/;/g); # https://shogo82148.github.io/blog/2015/04/09/count-substrings-in-perl/
-    
+    # TODO: https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3
+    my $argments_size = 1;#(() = $argments_string =~ m/;/g); # https://shogo82148.github.io/blog/2015/04/09/count-substrings-in-perl/
+    #use DDP;
+    #p $argments_string; # AddInt: "(I)V"; HelloWorld: "(Ljava/lang/String;)V";
+    #p $argments_size;   # AddInt: 0
     my @argments;
     for (1..$argments_size) {
         push @argments, pop @{$self->_operand_stack}, # XXX: pop order (本当は逆からpopする必要がある) https://speakerdeck.com/memory1994/php-de-jvm-woshi-zhuang-site-hello-world-wochu-li-surumade?slide=150
     }
 
     my $method = pop @{$self->_operand_stack};
-    use DDP;
-    p $method;
-    p $method_name;
-    p @argments;
+
     my $return = $method->{callable}->$method_name(@argments);
 }
 
