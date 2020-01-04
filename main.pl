@@ -3,10 +3,11 @@ use utf8;
 use strict;
 use warnings;
 use lib './lib';
-use Opcode;
+use Frame;
+use feature qw/say state/;
 
 # javac -encoding UTF-8 example/HelloWorld.java
-my $file = 'example/HelloWorld.class';
+my $file = 'example/AddInt.class';
 
 open my $fh, '<', $file or die $!;
 binmode $fh;
@@ -202,7 +203,7 @@ sub main {
         next if $method->{access_flags} == 0; # FIXME # 静的メソッドなのでコンストラクタは呼ばれないように
 
         for my $attribute_info (@{$method->{attribute_info}}) {
-            my $code = Opcode->new(+{
+            my $code = Frame->new(+{
                 constant_pool_entries => \@constant_pool_entries,
                 raw_code              => $attribute_info->{code},
                 raw_code_length       => $attribute_info->{code_length},
