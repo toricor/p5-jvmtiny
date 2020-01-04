@@ -106,6 +106,11 @@ sub run {
         elsif ($opcode eq '08') {
             $self->iconst_i($opcode);
         }
+        # istore
+        elsif ($opcode eq '36') {
+            my $index = shift @code_array;
+            $self->istore($index);
+        }
         # istore_0
         elsif ($opcode eq '3b') {
             $self->istore_n($opcode);
@@ -150,6 +155,11 @@ sub run {
         elsif ($opcode eq '10') {
             my $byte = shift @code_array;
             $self->bipush($byte);
+        }
+        # iload
+        elsif ($opcode eq '15') {
+            my $byte = shift @code_array;
+            $self->iload($byte);
         }
         # TODO
         else {
@@ -249,6 +259,14 @@ sub iconst_i {
     push @{$self->_operand_stack}, $value_map->{$opcode};
 }
 
+# 0x36
+# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.istore
+sub istore {
+    my ($self, $index) = @_;
+    my $value = pop @{$self->_operand_stack};
+    $self->_local_variables->[hex($index)] = $value;
+}
+
 # 0x3b ~ 0x3e
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.istore_n
 sub istore_n {
@@ -306,6 +324,14 @@ sub isub {
 sub bipush {
     my ($self, $byte) = @_;
     push @{$self->_operand_stack}, hex($byte);
+}
+
+# 0x15
+# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.iload
+sub iload {
+    my ($self, $index) = @_;
+    my $value = $self->_local_variables->[hex($index)];
+    push @{$self->_operand_stack}, $value;
 }
 
 # private
