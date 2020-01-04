@@ -161,6 +161,14 @@ sub run {
             my $byte = shift @code_array;
             $self->iload($byte);
         }
+        # imul
+        elsif ($opcode eq '68') {
+            $self->imul();
+        }
+        # ineg
+        elsif ($opcode eq '74') {
+            $self->ineg();
+        }
         # TODO
         else {
             die "opcode:$opcode has not implemented yet";
@@ -313,9 +321,9 @@ sub iadd {
 sub isub {
     my ($self) = @_;
 
-    my $value1 = pop @{$self->_operand_stack};
     my $value2 = pop @{$self->_operand_stack};
-    my $result = $value2 - $value1;
+    my $value1 = pop @{$self->_operand_stack};
+    my $result = $value1 - $value2;
     push @{$self->_operand_stack}, $result;
 }
 
@@ -333,6 +341,27 @@ sub iload {
     my $value = $self->_local_variables->[hex($index)];
     push @{$self->_operand_stack}, $value;
 }
+
+# 0x68
+# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.imul
+sub imul {
+    my ($self) = @_;
+
+    my $value2 = pop @{$self->_operand_stack};
+    my $value1 = pop @{$self->_operand_stack};
+    my $result = $value1 * $value2;
+    push @{$self->_operand_stack}, $result;
+}
+
+# 0x74
+# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.ineg
+sub ineg {
+    my ($self) = @_;
+    my $value = pop @{$self->_operand_stack};
+    my $result = -1 * $value;
+    push @{$self->_operand_stack}, $result;
+}
+
 
 # private
 sub _index_by_byte1_and_byte2 {
