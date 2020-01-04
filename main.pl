@@ -6,8 +6,9 @@ use lib './lib';
 use Frame;
 use feature qw/say state/;
 
-# javac -encoding UTF-8 example/HelloWorld.java
-my $file = 'example/SubtractInt.class';
+# prepare class file
+# `javac -encoding UTF-8 example/HelloWorld.java`
+my $file = $ARGV[0];
 
 open my $fh, '<', $file or die $!;
 binmode $fh;
@@ -157,8 +158,8 @@ sub main {
             %entry,
         };
     }
-use DDP;
-p @constant_pool_entries;
+    #use DDP;
+    #p @constant_pool_entries;
     my $access_flags = read_unsigned_short();
 
     my $this_class  = read_unsigned_short(); # HelloWorld: 0x0005(Constant pool #5 // HelloWorld)
@@ -227,11 +228,12 @@ __END__
 =head1 SYNOPSIS
 
 carton install
-carton exec perl main.pl or ./dev_env.sh perl main.pl
+carton exec perl main.pl HelloWorld.class
+or ./dev_env.sh perl main.pl HelloWorld.class
 
 =head1 DESCRIPTION
 
     JVM by Perl;
-    read HelloWorld.class and run it
+    read *.class and run it
 
 =cut

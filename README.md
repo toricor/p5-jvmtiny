@@ -4,4 +4,4 @@ This is toy project.
 
 ### Run HelloWorld
 preparing classfile (Java 8) `javac -encoding UTF-8 example/HelloWorld.java`  
-and run the script `./dev_env.sh perl main.pl`
+and run the script `./dev_env.sh perl main.pl example/HelloWorld.java`
