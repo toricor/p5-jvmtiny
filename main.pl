@@ -7,7 +7,7 @@ use Frame;
 use feature qw/say state/;
 
 # javac -encoding UTF-8 example/HelloWorld.java
-my $file = 'example/AddInt10.class';
+my $file = 'example/SubtractInt.class';
 
 open my $fh, '<', $file or die $!;
 binmode $fh;
