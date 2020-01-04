@@ -7,7 +7,7 @@ use Frame;
 use feature qw/say state/;
 
 # javac -encoding UTF-8 example/HelloWorld.java
-my $file = 'example/AddInt.class';
+my $file = 'example/AddInt10.class';
 
 open my $fh, '<', $file or die $!;
 binmode $fh;
@@ -111,7 +111,7 @@ sub main {
     my $minor = read_unsigned_short();
     my $major = read_unsigned_short();
 
-    ## constant pool 
+    ## constant pool
     my @constant_pool_entries = (+{}); # 後でアクセスしやすいように
     my $constant_pool_count = read_unsigned_short();
 
@@ -157,7 +157,8 @@ sub main {
             %entry,
         };
     }
-
+use DDP;
+p @constant_pool_entries;
     my $access_flags = read_unsigned_short();
 
     my $this_class  = read_unsigned_short(); # HelloWorld: 0x0005(Constant pool #5 // HelloWorld)

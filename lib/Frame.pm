@@ -52,7 +52,8 @@ has _local_variables => (
 sub run {
     my $self = shift;
     my @code_array = @{$self->_code_array};
-
+use DDP;
+p @code_array;
     while (@code_array) {
         my $opcode = shift @code_array;
 
@@ -140,6 +141,11 @@ sub run {
         # iadd
         elsif ($opcode eq '60') {
             $self->iadd();
+        }
+        # bipush
+        elsif ($opcode eq '10') {
+            my $byte = shift @code_array;
+            $self->bipush($byte);
         }
         # TODO
         else {
@@ -278,6 +284,13 @@ sub iadd {
     my $value2 = pop @{$self->_operand_stack};
     my $result = $value1 + $value2;
     push @{$self->_operand_stack}, $result;
+}
+
+# 0x10
+# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.bipush
+sub bipush {
+    my ($self, $byte) = @_;
+    push @{$self->_operand_stack}, hex($byte);
 }
 
 # private
