@@ -389,9 +389,37 @@ sub if_icmp {
         }
         return;
     }
+    # if_icmpne
+    elsif ($opcode eq 'a0') {
+        if ($value1 != $value2) {
+            $target_index = ($branch_byte1 << 8) | $branch_byte2;
+        }
+        return;
+    }
+    # if_icmplt
+    elsif ($opcode eq 'a1') {
+        if ($value1 < $value2) {
+            $target_index = ($branch_byte1 << 8) | $branch_byte2;
+        }
+        return;
+    }
     # if_icmpge
     elsif ($opcode eq 'a2') {
+        if ($value1 >= $value2) {
+            $target_index = ($branch_byte1 << 8) | $branch_byte2;
+        }
+        return;
+    }
+    # if_icmpgt
+    elsif ($opcode eq 'a3') {
         if ($value1 > $value2) {
+            $target_index = ($branch_byte1 << 8) | $branch_byte2;
+        }
+        return;
+    }
+    # if_icmplt
+    elsif ($opcode eq 'a4') {
+        if ($value1 < $value2) {
             $target_index = ($branch_byte1 << 8) | $branch_byte2;
         }
         return;
