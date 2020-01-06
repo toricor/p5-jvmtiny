@@ -27,7 +27,7 @@ has raw_code_length => (
 
 # ex. [qw/b2 00 02 12 03 .../];
 has _code_array => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => 'ArrayRef[Str]',
     default  => sub {
         my $self = shift;
@@ -48,30 +48,37 @@ has _local_variables => (
     default => sub {[]},
 );
 
+has _current_control_index => (
+    is      => 'rw',
+    isa     => 'Int',
+    default => 0,
+);
 
 sub run {
     my $self = shift;
-    my @code_array = @{$self->_code_array};
-    #use DDP;
-    #p @code_array;
-    while (@code_array) {
-        my $opcode = shift @code_array;
+    my $current_control_index = $self->_current_control_index;
 
+    my $code_array = $self->_code_array;
+    use DDP;
+    p $code_array;
+    while ($current_control_index < scalar(@$code_array)) {
+        my $opcode = $code_array->[$current_control_index++];
+p $opcode;
         # getstatic
         if ($opcode eq 'b2') {
-            my $indexbyte1 = shift @code_array;
-            my $indexbyte2 = shift @code_array;
+            my $indexbyte1 = $code_array->[$current_control_index++];
+            my $indexbyte2 = $code_array->[$current_control_index++];
             $self->getstatic($indexbyte1, $indexbyte2);
         }
         # ldc
         elsif ($opcode eq '12') {
-            my $index = shift @code_array;
+            my $index = $code_array->[$current_control_index++];
             $self->ldc($index);
         }
         # invokevirtual
         elsif ($opcode eq 'b6') {
-            my $indexbyte1 = shift @code_array;
-            my $indexbyte2 = shift @code_array;
+            my $indexbyte1 = $code_array->[$current_control_index++];
+            my $indexbyte2 = $code_array->[$current_control_index++];
             $self->invokevirtual($indexbyte1, $indexbyte2);
         }
         # return
@@ -108,7 +115,7 @@ sub run {
         }
         # istore
         elsif ($opcode eq '36') {
-            my $index = shift @code_array;
+            my $index = $code_array->[$current_control_index++];
             $self->istore($index);
         }
         # istore_0
@@ -153,12 +160,12 @@ sub run {
         }
         # bipush
         elsif ($opcode eq '10') {
-            my $byte = shift @code_array;
+            my $byte = $code_array->[$current_control_index++];
             $self->bipush($byte);
         }
         # iload
         elsif ($opcode eq '15') {
-            my $byte = shift @code_array;
+            my $byte = $code_array->[$current_control_index++];
             $self->iload($byte);
         }
         # imul
@@ -168,6 +175,12 @@ sub run {
         # ineg
         elsif ($opcode eq '74') {
             $self->ineg();
+        }
+        # if_icmp<cond>
+        elsif ($opcode eq 'a2') {
+            my $branch_byte1 = $code_array->[$current_control_index++];
+            my $branch_byte2 = $code_array->[$current_control_index++];
+            $self->if_icmp($opcode, $branch_byte1, $branch_byte2);
         }
         # TODO
         else {
@@ -360,6 +373,30 @@ sub ineg {
     my $value = pop @{$self->_operand_stack};
     my $result = -1 * $value;
     push @{$self->_operand_stack}, $result;
+}
+
+# 0x9f, 0xa1 ~ 0xa4
+sub if_icmp {
+    my ($self, $opcode, $branch_byte1, $branch_byte2) = @_;
+    my $value2 = pop @{$self->_operand_stack};
+    my $value1 = pop @{$self->_operand_stack};
+
+    my $target_index;
+    # if_icmpeq
+    if ($opcode eq '9f') {
+        if ($value1 == $value2) {
+            $target_index = ($branch_byte1 << 8) | $branch_byte2;
+        }
+        return;
+    }
+    # if_icmpge
+    elsif ($opcode eq 'a2') {
+        if ($value1 > $value2) {
+            $target_index = ($branch_byte1 << 8) | $branch_byte2;
+        }
+        return;
+    }
+    $self->_current_control_index(hex($target_index));
 }
 
 
