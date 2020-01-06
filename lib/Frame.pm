@@ -59,11 +59,9 @@ sub run {
     my $current_control_index = $self->_current_control_index;
 
     my $code_array = $self->_code_array;
-    use DDP;
-    p $code_array;
     while ($current_control_index < scalar(@$code_array)) {
         my $opcode = $code_array->[$current_control_index++];
-p $opcode;
+
         # getstatic
         if ($opcode eq 'b2') {
             my $indexbyte1 = $code_array->[$current_control_index++];
@@ -181,6 +179,18 @@ p $opcode;
             my $branch_byte1 = $code_array->[$current_control_index++];
             my $branch_byte2 = $code_array->[$current_control_index++];
             $self->if_icmp($opcode, $branch_byte1, $branch_byte2);
+        }
+        # goto
+        elsif ($opcode eq 'a7') {
+            my $branch_byte1 = $code_array->[$current_control_index++];
+            my $branch_byte2 = $code_array->[$current_control_index++];
+            $self->goto($opcode, $branch_byte1, $branch_byte2);
+        }
+        # iinc
+        elsif ($opcode eq '84') {
+            my $index = $code_array->[$current_control_index++];
+            my $const = $code_array->[$current_control_index++];
+            $self->iinc($index, $const);
         }
         # TODO
         else {
@@ -376,10 +386,13 @@ sub ineg {
 }
 
 # 0x9f, 0xa1 ~ 0xa4
+# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.if_icmp<cond>
 sub if_icmp {
     my ($self, $opcode, $branch_byte1, $branch_byte2) = @_;
     my $value2 = pop @{$self->_operand_stack};
     my $value1 = pop @{$self->_operand_stack};
+    $branch_byte1 = hex($branch_byte1);
+    $branch_byte2 = hex($branch_byte2);
 
     my $target_index;
     # if_icmpeq
@@ -427,6 +440,20 @@ sub if_icmp {
     $self->_current_control_index(hex($target_index));
 }
 
+# 0x84
+# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.iinc
+sub iinc {
+    my ($self, $index, $const) = @_;
+    $self->_local_variables->[hex($index)] += $const;
+}
+
+# 0xa7
+# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.goto
+sub goto {
+    my ($self, $branch_byte1, $branch_byte2) = @_;
+    my $target_index = (hex($branch_byte1) << 8) | hex($branch_byte2);
+    $self->_current_control_index(hex($target_index));
+}
 
 # private
 sub _index_by_byte1_and_byte2 {
