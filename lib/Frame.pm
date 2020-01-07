@@ -56,27 +56,28 @@ has _current_control_index => (
 
 sub run {
     my $self = shift;
-    my $current_control_index = $self->_current_control_index;
 
     my $code_array = $self->_code_array;
-    while ($current_control_index < scalar(@$code_array)) {
-        my $opcode = $code_array->[$current_control_index++];
-
+    while ($self->_current_control_index < scalar(@$code_array)) {
+        my $opcode = $code_array->[$self->_current_control_index($self->_current_control_index + 1)];
+use DDP;
+p $opcode;
+p $self->_current_control_index;
         # getstatic
         if ($opcode eq 'b2') {
-            my $indexbyte1 = $code_array->[$current_control_index++];
-            my $indexbyte2 = $code_array->[$current_control_index++];
+            my $indexbyte1 = $code_array->[$self->_current_control_index($self->_current_control_index + 1)];
+            my $indexbyte2 = $code_array->[$self->_current_control_index($self->_current_control_index + 1)];
             $self->getstatic($indexbyte1, $indexbyte2);
         }
         # ldc
         elsif ($opcode eq '12') {
-            my $index = $code_array->[$current_control_index++];
+            my $index = $code_array->[$self->_current_control_index($self->_current_control_index + 1)];
             $self->ldc($index);
         }
         # invokevirtual
         elsif ($opcode eq 'b6') {
-            my $indexbyte1 = $code_array->[$current_control_index++];
-            my $indexbyte2 = $code_array->[$current_control_index++];
+            my $indexbyte1 = $code_array->[$self->_current_control_index($self->_current_control_index + 1)];
+            my $indexbyte2 = $code_array->[$self->_current_control_index($self->_current_control_index + 1)];
             $self->invokevirtual($indexbyte1, $indexbyte2);
         }
         # return
@@ -113,7 +114,7 @@ sub run {
         }
         # istore
         elsif ($opcode eq '36') {
-            my $index = $code_array->[$current_control_index++];
+            my $index = $code_array->[$self->_current_control_index($self->_current_control_index + 1)];
             $self->istore($index);
         }
         # istore_0
@@ -158,12 +159,12 @@ sub run {
         }
         # bipush
         elsif ($opcode eq '10') {
-            my $byte = $code_array->[$current_control_index++];
+            my $byte = $code_array->[$self->_current_control_index($self->_current_control_index + 1)];
             $self->bipush($byte);
         }
         # iload
         elsif ($opcode eq '15') {
-            my $byte = $code_array->[$current_control_index++];
+            my $byte = $code_array->[$self->_current_control_index($self->_current_control_index + 1)];
             $self->iload($byte);
         }
         # imul
@@ -176,20 +177,20 @@ sub run {
         }
         # if_icmp<cond>
         elsif ($opcode eq 'a2') {
-            my $branch_byte1 = $code_array->[$current_control_index++];
-            my $branch_byte2 = $code_array->[$current_control_index++];
+            my $branch_byte1 = $code_array->[$self->_current_control_index($self->_current_control_index + 1)];
+            my $branch_byte2 = $code_array->[$self->_current_control_index($self->_current_control_index + 1)];
             $self->if_icmp($opcode, $branch_byte1, $branch_byte2);
         }
         # goto
         elsif ($opcode eq 'a7') {
-            my $branch_byte1 = $code_array->[$current_control_index++];
-            my $branch_byte2 = $code_array->[$current_control_index++];
-            $self->goto($opcode, $branch_byte1, $branch_byte2);
+            my $branch_byte1 = $code_array->[$self->_current_control_index($self->_current_control_index + 1)];
+            my $branch_byte2 = $code_array->[$self->_current_control_index($self->_current_control_index + 1)];
+            $self->goto($branch_byte1, $branch_byte2);
         }
         # iinc
         elsif ($opcode eq '84') {
-            my $index = $code_array->[$current_control_index++];
-            my $const = $code_array->[$current_control_index++];
+            my $index = $code_array->[$self->_current_control_index($self->_current_control_index + 1)];
+            my $const = $code_array->[$self->_current_control_index($self->_current_control_index + 1)];
             $self->iinc($index, $const);
         }
         # TODO
@@ -253,8 +254,9 @@ sub invokevirtual {
     my $argments_string = $constant_pool_entries->[$callee_info->{descriptor_index}]->{string};
     # TODO: https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3
     my $argments_size = 1;#(() = $argments_string =~ m/;/g); # https://shogo82148.github.io/blog/2015/04/09/count-substrings-in-perl/
-    #use DDP;
-    #p $argments_string; # AddInt: "(I)V"; HelloWorld: "(Ljava/lang/String;)V";
+    use DDP;
+    p $argments_string; # AddInt: "(I)V"; HelloWorld: "(Ljava/lang/String;)V";
+ 
     #p $argments_size;   # AddInt: 0
     my @argments;
     for (1..$argments_size) {
@@ -389,51 +391,51 @@ sub ineg {
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.if_icmp<cond>
 sub if_icmp {
     my ($self, $opcode, $branch_byte1, $branch_byte2) = @_;
-    my $value2 = pop @{$self->_operand_stack};
-    my $value1 = pop @{$self->_operand_stack};
+    my $value2 = hex(pop @{$self->_operand_stack});
+    my $value1 = hex(pop @{$self->_operand_stack});
     $branch_byte1 = hex($branch_byte1);
     $branch_byte2 = hex($branch_byte2);
 
-    my $target_index;
+    my $target_index = 0;
     # if_icmpeq
     if ($opcode eq '9f') {
         if ($value1 == $value2) {
-            $target_index = ($branch_byte1 << 8) | $branch_byte2;
+            $self->_current_control_index($self->_current_control_index + $self->_branch_offset($branch_byte1, $branch_byte2));
         }
         return;
     }
     # if_icmpne
     elsif ($opcode eq 'a0') {
         if ($value1 != $value2) {
-            $target_index = ($branch_byte1 << 8) | $branch_byte2;
+            $self->_current_control_index($self->_current_control_index + $self->_branch_offset($branch_byte1, $branch_byte2));
         }
         return;
     }
     # if_icmplt
     elsif ($opcode eq 'a1') {
         if ($value1 < $value2) {
-            $target_index = ($branch_byte1 << 8) | $branch_byte2;
+            $self->_current_control_index($self->_current_control_index + $self->_branch_offset($branch_byte1, $branch_byte2));
         }
         return;
     }
     # if_icmpge
     elsif ($opcode eq 'a2') {
         if ($value1 >= $value2) {
-            $target_index = ($branch_byte1 << 8) | $branch_byte2;
+            $self->_current_control_index($self->_current_control_index + $self->_branch_offset($branch_byte1, $branch_byte2));
         }
         return;
     }
     # if_icmpgt
     elsif ($opcode eq 'a3') {
         if ($value1 > $value2) {
-            $target_index = ($branch_byte1 << 8) | $branch_byte2;
+            $self->_current_control_index($self->_current_control_index + $self->_branch_offset($branch_byte1, $branch_byte2));
         }
         return;
     }
     # if_icmplt
     elsif ($opcode eq 'a4') {
         if ($value1 < $value2) {
-            $target_index = ($branch_byte1 << 8) | $branch_byte2;
+            $self->_current_control_index($self->_current_control_index + $self->_branch_offset($branch_byte1, $branch_byte2));
         }
         return;
     }
@@ -451,14 +453,20 @@ sub iinc {
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.goto
 sub goto {
     my ($self, $branch_byte1, $branch_byte2) = @_;
-    my $target_index = (hex($branch_byte1) << 8) | hex($branch_byte2);
-    $self->_current_control_index(hex($target_index));
+warn $self->_current_control_index;
+    $self->_current_control_index($self->_current_control_index + $self->_branch_offset($branch_byte1, $branch_byte2));
+warn $self->_current_control_index;
 }
 
 # private
 sub _index_by_byte1_and_byte2 {
     my ($self, $indexbyte1, $indexbyte2) = @_;
-    return $indexbyte1.$indexbyte2; # XXX:FIXME
+    return (hex($indexbyte1) << 8) | hex($indexbyte2);
+}
+
+sub _branch_offset {
+    my ($self, $branch_byte1, $branch_byte2) = @_;
+    return unpack("c", pack("c", (hex($branch_byte1) << 8) | hex($branch_byte2)));
 }
 
 no Mouse;
