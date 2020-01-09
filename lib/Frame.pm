@@ -469,9 +469,11 @@ sub _index_by_byte1_and_byte2 {
 
 sub _branch_offset {
     my ($self, $branch_byte1, $branch_byte2) = @_;
-    no warnings 'pack';
-    my $offset = unpack("c", pack("c", (hex($branch_byte1) << 8) | hex($branch_byte2)));
-    return $offset;
+    {
+        no warnings 'pack';
+        my $offset = unpack("c", pack("c", (hex($branch_byte1) << 8) | hex($branch_byte2)));
+        return $offset;
+    }
 }
 
 no Mouse;
