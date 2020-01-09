@@ -27,7 +27,7 @@ sub read_unsigned_int {
 
 sub read_byte {
     sysread($fh, my $buf, 1);
-    return unpack('c', $buf);
+    return unpack('C', $buf);
 }
 
 sub read_attribute {
@@ -41,6 +41,7 @@ sub read_attribute {
         name             => $name,
         attribute_length => $attribute_length,
     );
+
     # Code Attribute https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.3
     if ($name eq 'Code') {
         %result = (
@@ -92,9 +93,44 @@ sub read_attribute {
     elsif ($name eq 'SourceFile') {
         $result{sourcefile_index} = read_unsigned_short();
     }
+    # StackMapTable
+    elsif ($name eq 'StackMapTable') {
+        $result{stack_map_table_number_of_entries} = read_unsigned_short();
+
+        my @stack_map_frame_entries;
+        for my $i (1..$result{stack_map_table_number_of_entries}) {
+            my $frame_type = read_byte();
+
+            my $entry;
+            # CHOP
+            if (248 <= $frame_type && $frame_type <= 250) {
+                $entry = +{
+                    frame_type   => $frame_type,
+                    offset_delta => read_unsigned_short(),
+                };   
+            }
+            # APPEND
+            elsif (252 <= $frame_type && $frame_type <= 254) {
+                $entry = +{
+                    frame_type   => $frame_type,
+                    offset_delta => read_unsigned_short(),
+                };
+                my $k = $frame_type - 251;
+                
+                my @verification_type_infos;
+                for (1..$k) {
+                    my $variable_info = read_byte();
+                    push @verification_type_infos, $variable_info;
+                }
+                $entry->{verification_type_infos} = \@verification_type_infos;
+            }
+            push @stack_map_frame_entries, $entry;
+        }
+        $result{stack_map_table_frame_entries} = \@stack_map_frame_entries;
+    }
     # TODO
     else {
-        die 'unimplemented attribute';
+        die "$name is unimplemented attribute";
     }
 
     return \%result;
