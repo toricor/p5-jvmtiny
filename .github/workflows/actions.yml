@@ -9,5 +9,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: install modules
+      run: ./dev_env.sh carton install
     - name: run tests
       run: ./dev_env.sh prove t/**/*.t
