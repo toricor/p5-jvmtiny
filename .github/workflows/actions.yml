@@ -1,15 +1,35 @@
-name: CI
+  
+name: linux
 
-on: [push]
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+  pull_request:
 
 jobs:
-  build:
+  perl:
 
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        perl-version:
+          - '5.8'
+          - '5.10'
+          - '5.16'
+          - 'latest'
+
+    container:
+      image: perl:${{ matrix.perl-version }}
+
     steps:
-    - uses: actions/checkout@v1
-    - name: install modules
-      run: ./dev_env.sh carton install
-    - name: run tests
-      run: ./dev_env.sh prove t/**/*.t
+      - uses: actions/checkout@v1
+      - name: perl -V
+        run: perl -V
+      - name: Install Dependencies
+        run: curl -sL https://git.io/cpm | perl - install -g --show-build-log-on-failure
+      - name: Run Tests
+        run: prove -l t
