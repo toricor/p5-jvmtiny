@@ -1,4 +1,6 @@
 # p5-jvmtiny
+[![](https://github.com/toricor/p5-jvmtiny/workflows/linux/badge.svg)](https://github.com/toricor/p5-jvmtiny/actions) 
+
 p5-jvmtiny is an implementation of Java Virtual Machine in Perl5.
 This is toy project.
 

@@ -1,5 +1,3 @@
-requires 'perl', '5.018';
-
 requires 'Mouse', '2.5.9';
 
 on develop => sub {
