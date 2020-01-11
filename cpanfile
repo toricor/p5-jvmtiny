@@ -1,5 +1,4 @@
 requires 'Mouse', '2.5.9';
-requires 'Carton::Snapshot';
 
 on develop => sub {
     requires 'Data::Printer', '0.40';
