@@ -11,7 +11,6 @@ use ClassFile;
 has classfile_path => (
     is      => 'ro',
     isa     => 'Str', # XXX
-    #default => sub {'example/For.class'},
     required => 1,
 );
 
