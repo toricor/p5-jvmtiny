@@ -69,6 +69,7 @@ sub run {
     while ($current->{code_index} < scalar(@$code_array)) {
         $current->{opcode_index} = int($current->{code_index});
         $current->{opcode}       = $code_array->[$current->{code_index}++];
+
         my $opcode = $current->{opcode};
 
         # getstatic
@@ -281,7 +282,7 @@ sub invokevirtual {
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.return
 sub return {
     my ($self) = @_;
-    die 'return';
+    #die 'return';
 }
 
 # 0x2 ~ 0x8
