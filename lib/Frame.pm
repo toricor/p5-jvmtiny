@@ -60,6 +60,72 @@ has _current_control => (
     },
 );
 
+my $opcode_config = +{
+    '02' => +{ name => 'iconst_m1',     operand_count => 0},
+    '03' => +{ name => 'iconst_0',      operand_count => 0},
+    '04' => +{ name => 'iconst_1',      operand_count => 0},
+    '05' => +{ name => 'iconst_2',      operand_count => 0},
+    '06' => +{ name => 'iconst_3',      operand_count => 0},
+    '07' => +{ name => 'iconst_4',      operand_count => 0},
+    '08' => +{ name => 'iconst_5',      operand_count => 0},
+    '10' => +{ name => 'bipush',        operand_count => 1},
+    '12' => +{ name => 'ldc',           operand_count => 1},
+    '15' => +{ name => 'iload',         operand_count => 1},
+    '1a' => +{ name => 'iload_0',       operand_count => 0},
+    '1b' => +{ name => 'iload_1',       operand_count => 0},
+    '1c' => +{ name => 'iload_2',       operand_count => 0},
+    '1d' => +{ name => 'iload_3',       operand_count => 0},
+    '36' => +{ name => 'istore',        operand_count => 1},
+    '3b' => +{ name => 'istore_0',      operand_count => 0},
+    '3c' => +{ name => 'istore_1',      operand_count => 0},
+    '3d' => +{ name => 'istore_2',      operand_count => 0},
+    '3e' => +{ name => 'istore_3',      operand_count => 0},
+    '60' => +{ name => 'iadd',          operand_count => 0},
+    '64' => +{ name => 'isub',          operand_count => 0},
+    '68' => +{ name => 'imul',          operand_count => 0},
+    '74' => +{ name => 'ineg',          operand_count => 0},
+    '84' => +{ name => 'iinc',          operand_count => 2},
+    '9f' => +{ name => 'if_icmpeq',     operand_count => 2},
+    'a0' => +{ name => 'if_icmpne',     operand_count => 2},
+    'a1' => +{ name => 'if_icmplt',     operand_count => 2},
+    'a2' => +{ name => 'if_icmpge',     operand_count => 2},
+    'a3' => +{ name => 'if_icmpgt',     operand_count => 2},
+    'a4' => +{ name => 'if_icmple',     operand_count => 2},
+    'a7' => +{ name => 'goto',          operand_count => 2},
+    'b1' => +{ name => 'return',        operand_count => 0},
+    'b2' => +{ name => 'getstatic',     operand_count => 2},
+    'b6' => +{ name => 'invokevirtual', operand_count => 2},
+};
+
+# opcode名がメソッド名ではないもの
+my $opcode_to_special_method = +{
+    '02' => 'iconst_i',
+    '03' => 'iconst_i',
+    '04' => 'iconst_i',
+    '05' => 'iconst_i',
+    '06' => 'iconst_i',
+    '07' => 'iconst_i',
+    '08' => 'iconst_i',
+
+    '1a' => 'iload_n',
+    '1b' => 'iload_n',
+    '1c' => 'iload_n',
+    '1d' => 'iload_n', 
+
+    '9f' => 'if_icmp',
+    'a0' => 'if_icmp',
+    'a1' => 'if_icmp',
+    'a2' => 'if_icmp',
+    'a3' => 'if_icmp',
+    'a4' => 'if_icmp',
+
+    '3b' => 'istore_n',
+    '3c' => 'istore_n',
+    '3d' => 'istore_n',
+    '3e' => 'istore_n',
+};
+
+
 sub run {
     my $self = shift;
 
@@ -71,140 +137,23 @@ sub run {
         $current->{opcode}       = $code_array->[$current->{code_index}++];
 
         my $opcode = $current->{opcode};
-
-        # getstatic
-        if ($opcode eq 'b2') {
-            my $indexbyte1 = $code_array->[$current->{code_index}++];
-            my $indexbyte2 = $code_array->[$current->{code_index}++];
-            $self->getstatic($indexbyte1, $indexbyte2);
+ 
+        if ($opcode eq 'aa' || $opcode eq 'ab') { # has padding
+            die "$opcode is unimplemented";
         }
-        # ldc
-        elsif ($opcode eq '12') {
-            my $index = $code_array->[$current->{code_index}++];
-            $self->ldc($index);
-        }
-        # invokevirtual
-        elsif ($opcode eq 'b6') {
-            my $indexbyte1 = $code_array->[$current->{code_index}++];
-            my $indexbyte2 = $code_array->[$current->{code_index}++];
-            $self->invokevirtual($indexbyte1, $indexbyte2);
-        }
-        # return
-        elsif ($opcode eq 'b1') {
-            $self->return();
-        }
-        # iconst_m1
-        elsif ($opcode eq '02') {
-            $self->iconst_i($opcode);
-        }
-        # iconst_0
-        elsif ($opcode eq '03') {
-            $self->iconst_i($opcode);
-        }
-        # iconst_1
-        elsif ($opcode eq '04') {
-            $self->iconst_i($opcode);
-        }
-        # iconst_2
-        elsif ($opcode eq '05') {
-            $self->iconst_i($opcode);
-        }
-        # iconst_3
-        elsif ($opcode eq '06') {
-            $self->iconst_i($opcode);
-        }
-        # iconst_4
-        elsif ($opcode eq '07') {
-            $self->iconst_i($opcode);
-        }
-        # iconst_5
-        elsif ($opcode eq '08') {
-            $self->iconst_i($opcode);
-        }
-        # istore
-        elsif ($opcode eq '36') {
-            my $index = $code_array->[$current->{code_index}++];
-            $self->istore($index);
-        }
-        # istore_0
-        elsif ($opcode eq '3b') {
-            $self->istore_n($opcode);
-        }
-        # istore_1
-        elsif ($opcode eq '3c') {
-            $self->istore_n($opcode);
-        }
-        # istore_2
-        elsif ($opcode eq '3d') {
-            $self->istore_n($opcode);
-        }
-        # istore_3
-        elsif ($opcode eq '3e') {
-            $self->istore_n($opcode);
-        }
-        # iload_0
-        elsif ($opcode eq '1a') {
-            $self->iload_n($opcode);
-        }
-        # iload_1
-        elsif ($opcode eq '1b') {
-            $self->iload_n($opcode);
-        }
-        # iload_2
-        elsif ($opcode eq '1c') {
-            $self->iload_n($opcode);
-        }
-        # iload_3
-        elsif ($opcode eq '1d') {
-            $self->iload_n($opcode);
-        }
-        # iadd
-        elsif ($opcode eq '60') {
-            $self->iadd();
-        }
-        # isub
-        elsif ($opcode eq '64') {
-            $self->isub();
-        }
-        # bipush
-        elsif ($opcode eq '10') {
-            my $byte = $code_array->[$current->{code_index}++];
-            $self->bipush($byte);
-        }
-        # iload
-        elsif ($opcode eq '15') {
-            my $byte = $code_array->[$current->{code_index}++];
-            $self->iload($byte);
-        }
-        # imul
-        elsif ($opcode eq '68') {
-            $self->imul();
-        }
-        # ineg
-        elsif ($opcode eq '74') {
-            $self->ineg();
-        }
-        # if_icmp<cond>
-        elsif ($opcode eq 'a2') {
-            my $branch_byte1 = $code_array->[$current->{code_index}++];
-            my $branch_byte2 = $code_array->[$current->{code_index}++];
-            $self->if_icmp($opcode, $branch_byte1, $branch_byte2);
-        }
-        # goto
-        elsif ($opcode eq 'a7') {
-            my $branch_byte1 = $code_array->[$current->{code_index}++];
-            my $branch_byte2 = $code_array->[$current->{code_index}++];
-            $self->goto($branch_byte1, $branch_byte2);
-        }
-        # iinc
-        elsif ($opcode eq '84') {
-            my $index = $code_array->[$current->{code_index}++];
-            my $const = $code_array->[$current->{code_index}++];
-            $self->iinc($index, $const);
-        }
-        # TODO
         else {
-            die "opcode:$opcode has not implemented yet";
+            my $operand_count = $opcode_config->{$opcode}->{operand_count};
+            my $opcode_name   = $opcode_config->{$opcode}->{name};
+
+            die "$opcode is unimplemented" unless $opcode_name;
+
+            my @args;
+            for (1..$operand_count) {
+                my $arg = $code_array->[$current->{code_index}++];
+                push @args, $arg;
+            }
+            my $method = $opcode_to_special_method->{$opcode} // $opcode_name; 
+            $self->$method($opcode, @args);
         }
     }
 }
@@ -213,7 +162,7 @@ sub run {
 # 0xb2
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.getstatic
 sub getstatic {
-    my ($self, $indexbyte1, $indexbyte2) = @_;
+    my ($self, $opcode, $indexbyte1, $indexbyte2) = @_;
     my $constant_pool_entries = $self->constant_pool_entries;
     my $constant_pool_index   = $self->_index_by_byte1_and_byte2($indexbyte1, $indexbyte2);
     my $symbol_name_hash      = $constant_pool_entries->[$constant_pool_index];
@@ -239,7 +188,7 @@ sub getstatic {
 # 0x12
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.ldc
 sub ldc {
-    my ($self, $index) = @_;
+    my ($self, $opcode, $index) = @_;
      my $constant_pool_entries = $self->constant_pool_entries;
 
      my $symbol_name_hash = $constant_pool_entries->[$index];
@@ -252,7 +201,7 @@ sub ldc {
 # 0xb6
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.invokevirtual
 sub invokevirtual {
-    my ($self, $indexbyte1, $indexbyte2) = @_;
+    my ($self, $opcode, $indexbyte1, $indexbyte2) = @_;
     my $constant_pool_entries = $self->constant_pool_entries;
     my $constant_pool_index   = $self->_index_by_byte1_and_byte2($indexbyte1, $indexbyte2);
     my $symbol_name_hash = $constant_pool_entries->[$constant_pool_index];
@@ -305,7 +254,7 @@ sub iconst_i {
 # 0x36
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.istore
 sub istore {
-    my ($self, $index) = @_;
+    my ($self, $opcode, $index) = @_;
     my $value = pop @{$self->_operand_stack};
     $self->_local_variables->[hex($index)] = $value;
 }
@@ -365,14 +314,14 @@ sub isub {
 # 0x10
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.bipush
 sub bipush {
-    my ($self, $byte) = @_;
+    my ($self, $opcode, $byte) = @_;
     push @{$self->_operand_stack}, hex($byte);
 }
 
 # 0x15
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.iload
 sub iload {
-    my ($self, $index) = @_;
+    my ($self, $opcode, $index) = @_;
     my $value = $self->_local_variables->[hex($index)];
     push @{$self->_operand_stack}, $value;
 }
@@ -449,14 +398,14 @@ sub if_icmp {
 # 0x84
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.iinc
 sub iinc {
-    my ($self, $index, $const) = @_;
+    my ($self, $opcode, $index, $const) = @_;
     $self->_local_variables->[hex($index)] += $const;
 }
 
 # 0xa7
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.goto
 sub goto {
-    my ($self, $branch_byte1, $branch_byte2) = @_;
+    my ($self, $opcode, $branch_byte1, $branch_byte2) = @_;
 
     $self->_current_control->{code_index} =
         $self->_current_control->{opcode_index} + $self->_branch_offset($branch_byte1, $branch_byte2);
