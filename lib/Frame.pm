@@ -358,41 +358,33 @@ sub if_icmp {
     my $target_index = 0;
     # if_icmpeq
     if ($opcode eq '9f') {
-        if ($value1 == $value2) {
-            
-        }
+        return unless ($value1 == $value2);
     }
     # if_icmpne
     elsif ($opcode eq 'a0') {
-        if ($value1 != $value2) {
-        
-        }
+        return unless ($value1 != $value2);
     }
     # if_icmplt
     elsif ($opcode eq 'a1') {
-        if ($value1 < $value2) {
-
-        }
+        return unless ($value1 < $value2);
     }
     # if_icmpge
     elsif ($opcode eq 'a2') {
-        if ($value1 >= $value2) {
-            $self->_current_control->{code_index} =
-                $self->_current_control->{opcode_index} + $self->_branch_offset($branch_byte1, $branch_byte2);   
-        }
+        return unless ($value1 >= $value2);
     }
     # if_icmpgt
     elsif ($opcode eq 'a3') {
-        if ($value1 > $value2) {
-           
-        }
+        return unless ($value1 > $value2);
     }
     # if_icmplt
     elsif ($opcode eq 'a4') {
-        if ($value1 < $value2) {
-            
-        }
+        return unless ($value1 < $value2);
     }
+    else {
+        die 'something wrong';
+    }
+    $self->_current_control->{code_index} =
+        $self->_current_control->{opcode_index} + $self->_branch_offset($branch_byte1, $branch_byte2);
 }
 
 # 0x84
