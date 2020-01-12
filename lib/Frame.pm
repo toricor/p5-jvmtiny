@@ -83,8 +83,15 @@ my $opcode_config = +{
     '60' => +{ name => 'iadd',          operand_count => 0},
     '64' => +{ name => 'isub',          operand_count => 0},
     '68' => +{ name => 'imul',          operand_count => 0},
+    '70' => +{ name => 'irem',          operand_count => 0},
     '74' => +{ name => 'ineg',          operand_count => 0},
     '84' => +{ name => 'iinc',          operand_count => 2},
+    '99' => +{ name => 'ifeq',          operand_count => 2},
+    '9a' => +{ name => 'ifne',          operand_count => 2},
+    '9b' => +{ name => 'iflt',          operand_count => 2},
+    '9c' => +{ name => 'ifge',          operand_count => 2},
+    '9d' => +{ name => 'ifgt',          operand_count => 2},
+    '9e' => +{ name => 'ifle',          operand_count => 2},
     '9f' => +{ name => 'if_icmpeq',     operand_count => 2},
     'a0' => +{ name => 'if_icmpne',     operand_count => 2},
     'a1' => +{ name => 'if_icmplt',     operand_count => 2},
@@ -112,6 +119,13 @@ my $opcode_to_special_method = +{
     '1c' => 'iload_n',
     '1d' => 'iload_n', 
 
+    '99' => 'if',
+    '9a' => 'if',
+    '9b' => 'if',
+    '9c' => 'if',
+    '9d' => 'if',
+    '9e' => 'if',
+
     '9f' => 'if_icmp',
     'a0' => 'if_icmp',
     'a1' => 'if_icmp',
@@ -132,6 +146,7 @@ sub run {
     my $current = $self->_current_control;
 
     my $code_array = $self->_code_array;
+   
     while ($current->{code_index} < scalar(@$code_array)) {
         $current->{opcode_index} = int($current->{code_index});
         $current->{opcode}       = $code_array->[$current->{code_index}++];
@@ -139,13 +154,13 @@ sub run {
         my $opcode = $current->{opcode};
  
         if ($opcode eq 'aa' || $opcode eq 'ab') { # has padding
-            die "$opcode is unimplemented";
+            die "opcode: $opcode is unimplemented";
         }
         else {
             my $operand_count = $opcode_config->{$opcode}->{operand_count};
             my $opcode_name   = $opcode_config->{$opcode}->{name};
 
-            die "$opcode is unimplemented" unless $opcode_name;
+            die "opcode: $opcode is unimplemented" unless $opcode_name;
 
             my @args;
             for (1..$operand_count) {
@@ -182,7 +197,6 @@ sub getstatic {
         callable => $callee_class->new()->$field,
         return   => $method_return,
     };
-
 }
 
 # 0x12
@@ -193,7 +207,6 @@ sub ldc {
 
      my $symbol_name_hash = $constant_pool_entries->[$index];
 
-     # Hello World !
      my $string = $constant_pool_entries->[$symbol_name_hash->{string_index}]->{string};
      push @{$self->_operand_stack}, $string;
 }
@@ -352,8 +365,6 @@ sub if_icmp {
     my ($self, $opcode, $branch_byte1, $branch_byte2) = @_;
     my $value2 = hex(pop @{$self->_operand_stack});
     my $value1 = hex(pop @{$self->_operand_stack});
-    $branch_byte1 = hex($branch_byte1);
-    $branch_byte2 = hex($branch_byte2);
 
     my $target_index = 0;
     # if_icmpeq
@@ -387,6 +398,42 @@ sub if_icmp {
         $self->_current_control->{opcode_index} + $self->_branch_offset($branch_byte1, $branch_byte2);
 }
 
+sub if {
+    my ($self, $opcode, $branch_byte1, $branch_byte2) = @_;
+    my $value = hex(pop @{$self->_operand_stack});
+
+    my $target_index = 0;
+    # ifeq
+    if ($opcode eq '99') {
+        return unless ($value == 0);
+    }
+    # ifne
+    elsif ($opcode eq '9a') {
+        return unless ($value != 0);
+    }
+    # iflt
+    elsif ($opcode eq '9b') {
+        return unless ($value < 0);
+    }
+    # ifge
+    elsif ($opcode eq '9c') {
+        return unless ($value >= 0);
+    }
+    # ifgt
+    elsif ($opcode eq '9d') {
+        return unless ($value > 0);
+    }
+    # iflt
+    elsif ($opcode eq '9e') {
+        return unless ($value < 0);
+    }
+    else {
+        die 'something wrong';
+    }
+    $self->_current_control->{code_index} =
+        $self->_current_control->{opcode_index} + $self->_branch_offset($branch_byte1, $branch_byte2);
+}
+
 # 0x84
 # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.iinc
 sub iinc {
@@ -403,6 +450,18 @@ sub goto {
         $self->_current_control->{opcode_index} + $self->_branch_offset($branch_byte1, $branch_byte2);
 }
 
+# 0x70
+sub irem {
+    my ($self, $opcode) = @_;
+    my $value2 = pop @{$self->_operand_stack};
+    my $value1 = pop @{$self->_operand_stack};
+    my $result = $value1 % $value2;
+    push @{$self->_operand_stack}, $result;
+}
+
+
+#
+#
 # private
 sub _index_by_byte1_and_byte2 {
     my ($self, $indexbyte1, $indexbyte2) = @_;
