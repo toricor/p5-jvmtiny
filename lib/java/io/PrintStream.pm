@@ -1,10 +1,9 @@
 package java::io::PrintStream;
 use Mouse;
-use feature qw/say/;
 
 sub println {
     my ($self, $args) = @_;
-    say $args;
+    print "$args\n";
 }
 
 no Mouse;
