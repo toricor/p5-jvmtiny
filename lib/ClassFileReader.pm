@@ -116,8 +116,14 @@ sub read_attribute {
             my $frame_type = read_byte();
 
             my $entry;
+            # SAME
+            if (0 <= $frame_type && $frame_type <= 63) {
+                $entry = +{
+                    frame_type => $frame_type,
+                };
+            }
             # CHOP
-            if (248 <= $frame_type && $frame_type <= 250) {
+            elsif (248 <= $frame_type && $frame_type <= 250) {
                 $entry = +{
                     frame_type   => $frame_type,
                     offset_delta => read_unsigned_short(),
@@ -142,6 +148,8 @@ sub read_attribute {
             push @stack_map_frame_entries, $entry;
         }
         $result{stack_map_table_frame_entries} = \@stack_map_frame_entries;
+        use DDP;
+        p @stack_map_frame_entries;
     }
     # TODO
     else {
