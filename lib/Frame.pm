@@ -146,7 +146,6 @@ sub run {
     my $current = $self->_current_control;
 
     my $code_array = $self->_code_array;
-   
     while ($current->{code_index} < scalar(@$code_array)) {
         $current->{opcode_index} = int($current->{code_index});
         $current->{opcode}       = $code_array->[$current->{code_index}++];
