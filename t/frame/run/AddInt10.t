@@ -135,7 +135,7 @@ describe 'Frame.run' => sub {
                 qw/1c/,       # iload_2
                 qw/60/,       # iadd
                 qw/b6 00 03/, # invokevirtual
-                qw/b1/,       #return
+                qw/b1/,       # return
             );
             my $packed = pack("C*", @values);
             my $frame = Frame->new(+{
