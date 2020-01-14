@@ -148,8 +148,6 @@ sub read_attribute {
             push @stack_map_frame_entries, $entry;
         }
         $result{stack_map_table_frame_entries} = \@stack_map_frame_entries;
-        use DDP;
-        p @stack_map_frame_entries;
     }
     # TODO
     else {
@@ -217,8 +215,6 @@ sub read_class_file {
             %entry,
         };
     }
-    #use DDP;
-    #p @constant_pool_entries;
 
     my $access_flags = read_unsigned_short();
 
