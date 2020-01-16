@@ -22,7 +22,7 @@ sub execute {
 
         for my $attribute_info (@{$method->{attribute_info}}) {
             my $code = Frame->new(+{
-                constant_pool_entries => $classfile_info->constant_pool_entries,
+                constant_pool_entries => $self->classfile_info->constant_pool_entries,
                 raw_code              => $attribute_info->{code},
                 raw_code_length       => $attribute_info->{code_length},
             });
