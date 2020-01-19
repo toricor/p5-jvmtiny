@@ -8,118 +8,118 @@ use Test::Spec;
 # Java8 (javac -encoding UTF-8 example/For.java)
 
 my @cp = (
-    +{}, # 1
-    +{   # 2
+    +{},
+    +{   # 1
         'name_and_type_index' => 15,
         'tag' => '0a',
         'class_index' => 5
     },
-    +{  # 3
+    +{  # 2
         'name_and_type_index' => 17,
         'tag' => '09',
         'class_index' => 16
     },
-    +{ # 4
+    +{ # 3
         'name_and_type_index' => 19,
         'tag' => '0a',
         'class_index' => 18
     },
-    +{  # 5
+    +{  # 4
           'name_index' => 20,
           'tag' => '07'
     },
-    +{  # 6
+    +{  # 5
           'tag' => '07',
           'name_index' => 21
     },
-    +{  # 7
+    +{  # 6
           'string' => '<init>',
           'tag' => '01'
     },
-    +{  # 8
+    +{  # 7
           'tag' => '01',
           'string' => '()V'
     },
-    +{  # 9
+    +{  # 8
         'tag' => '01',
         'string' => 'Code'
         },
-    +{  # 10
+    +{  # 9
            'string' => 'LineNumberTable',
            'tag' => '01'
     },
-    +{  # 11
+    +{  # 10
            'string' => 'main',
            'tag' => '01'
     },
-    +{  # 12
+    +{  # 11
            'string' => '([Ljava/lang/String;)V',
            'tag' => '01'
     },
-    +{  # 13
+    +{  # 12
            'tag' => '01',
            'string' => 'StackMapTable'
     },
-    +{  # 14
+    +{  # 13
            'tag' => '01',
            'string' => 'SourceFile'
     },
-    +{  # 15
+    +{  # 14
            'tag' => '01',
            'string' => 'For.java'
     },
-    +{  # 16
+    +{  # 15
            'tag' => '0c',
            'descriptor_index' => 7,
            'name_index' => 6
     },
-    +{  # 17
+    +{  # 16
            'name_index' => 22,
            'tag' => '07'
     },
-    +{  # 18
+    +{  # 17
            'tag' => '0c',
            'descriptor_index' => 24,
            'name_index' => 23
     },
-    +{  # 19
+    +{  # 18
            'name_index' => 25,
            'tag' => '07'
     },
-    +{  # 20
+    +{  # 19
            'tag' => '0c',
            'descriptor_index' => 27,
            'name_index' => 26
     },
-    +{  # 21
+    +{  # 20
            'tag' => '01',
            'string' => 'For'
     },
-    +{  # 22
+    +{  # 21
            'tag' => '01',
            'string' => 'java/lang/Object'
     },
-    +{  # 23
+    +{  # 22
            'string' => 'java/lang/System',
            'tag' => '01'
     },
-    +{  # 24
+    +{  # 23
            'tag' => '01',
            'string' => 'out'
     },
-    +{  # 25
+    +{  # 24
            'string' => 'Ljava/io/PrintStream;',
            'tag' => '01'
     },
-    +{  # 26
+    +{  # 25
            'tag' => '01',
            'string' => 'java/io/PrintStream'
     },
-    +{  # 27
+    +{  # 26
            'tag' => '01',
            'string' => 'println'
     },
-    +{  # 28
+    +{  # 27
            'tag' => '01',
            'string' => '(I)V'
     },
