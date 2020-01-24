@@ -6,6 +6,7 @@ use lib './lib';
 #use feature qw/say state/;
 
 use ClassFileReader;
+use ClassFileExecutor;
 use Frame;
 
 sub main {
@@ -21,18 +22,9 @@ sub main {
 
     # RUN OPCODES
     # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html
-    for my $method (@{$classfile_info->methods}) {
-        next if $method->{access_flags} == 0; # FIXME # do not call constuctor
-
-        for my $attribute_info (@{$method->{attribute_info}}) {
-            my $code = Frame->new(+{
-                constant_pool_entries => $classfile_info->constant_pool_entries,
-                raw_code              => $attribute_info->{code},
-                raw_code_length       => $attribute_info->{code_length},
-            });
-            $code->run();
-        }
-    }
+    ClassFileExecutor->new(+{
+        classfile_info => $classfile_info,
+    })->execute();
 }
 
 main();
