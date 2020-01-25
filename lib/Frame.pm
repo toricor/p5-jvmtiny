@@ -174,7 +174,6 @@ sub run {
 
 
 # 0xb2
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.getstatic
 sub getstatic {
     my ($self, $opcode, $indexbyte1, $indexbyte2) = @_;
     my $constant_pool_entries = $self->constant_pool_entries;
@@ -199,7 +198,6 @@ sub getstatic {
 }
 
 # 0x12
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.ldc
 sub ldc {
     my ($self, $opcode, $index) = @_;
      my $constant_pool_entries = $self->constant_pool_entries;
@@ -211,7 +209,6 @@ sub ldc {
 }
 
 # 0xb6
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.invokevirtual
 sub invokevirtual {
     my ($self, $opcode, $indexbyte1, $indexbyte2) = @_;
     my $constant_pool_entries = $self->constant_pool_entries;
@@ -234,20 +231,18 @@ sub invokevirtual {
     }
 
     my $method = pop @{$self->_operand_stack};
-#se DDP;
+#use DDP;
 #p $method;
     my $return = $method->{callable}->$method_name(@argments);
 }
 
 # 0xb1
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.return
 sub return {
     my ($self) = @_;
     #die 'return';
 }
 
 # 0x2 ~ 0x8
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.iconst_i
 sub iconst_i {
     my ($self, $opcode) = @_;
 
@@ -264,7 +259,6 @@ sub iconst_i {
 }
 
 # 0x36
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.istore
 sub istore {
     my ($self, $opcode, $index) = @_;
     my $value = pop @{$self->_operand_stack};
@@ -272,7 +266,6 @@ sub istore {
 }
 
 # 0x3b ~ 0x3e
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.istore_n
 sub istore_n {
     my ($self, $opcode) = @_;
     state $store_map; $store_map //= +{
@@ -287,7 +280,6 @@ sub istore_n {
 }
 
 # 0x1a ~ 0x1d
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.iload_n
 sub iload_n {
     my ($self, $opcode) = @_;
     state $load_map; $load_map //= +{
@@ -302,7 +294,6 @@ sub iload_n {
 }
 
 # 0x60
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.iadd
 sub iadd {
     my ($self) = @_;
 
@@ -313,7 +304,6 @@ sub iadd {
 }
 
 # 0x64
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.isub
 sub isub {
     my ($self) = @_;
 
@@ -324,14 +314,12 @@ sub isub {
 }
 
 # 0x10
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.bipush
 sub bipush {
     my ($self, $opcode, $byte) = @_;
     push @{$self->_operand_stack}, hex($byte);
 }
 
 # 0x15
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.iload
 sub iload {
     my ($self, $opcode, $index) = @_;
     my $value = $self->_local_variables->[hex($index)];
@@ -339,7 +327,6 @@ sub iload {
 }
 
 # 0x68
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.imul
 sub imul {
     my ($self) = @_;
 
@@ -350,7 +337,6 @@ sub imul {
 }
 
 # 0x74
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.ineg
 sub ineg {
     my ($self) = @_;
     my $value = pop @{$self->_operand_stack};
@@ -359,7 +345,6 @@ sub ineg {
 }
 
 # 0x9f, 0xa1 ~ 0xa4
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.if_icmp<cond>
 sub if_icmp {
     my ($self, $opcode, $branch_byte1, $branch_byte2) = @_;
     my $value2 = hex(pop @{$self->_operand_stack});
@@ -397,6 +382,7 @@ sub if_icmp {
         $self->_current_control->{opcode_index} + $self->_branch_offset($branch_byte1, $branch_byte2);
 }
 
+# 0x99 ~ 0x9e
 sub if {
     my ($self, $opcode, $branch_byte1, $branch_byte2) = @_;
     my $value = hex(pop @{$self->_operand_stack});
@@ -434,14 +420,12 @@ sub if {
 }
 
 # 0x84
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.iinc
 sub iinc {
     my ($self, $opcode, $index, $const) = @_;
     $self->_local_variables->[hex($index)] += $const;
 }
 
 # 0xa7
-# https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.goto
 sub goto {
     my ($self, $opcode, $branch_byte1, $branch_byte2) = @_;
 

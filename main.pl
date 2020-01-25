@@ -14,14 +14,13 @@ sub main {
     # 2) RUN OPCODES
     
     # READ A CLASS FILE
-    # prepare: `javac -encoding UTF-8 example/HelloWorld.java 
     my $classfile_path = $ARGV[0];
+
     my $classfile_info = ClassFileReader->new(
         classfile_path => $classfile_path
     )->read_class_file();
 
     # RUN OPCODES
-    # https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html
     ClassFileExecutor->new(+{
         classfile_info => $classfile_info,
     })->execute();
