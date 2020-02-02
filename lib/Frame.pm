@@ -107,14 +107,6 @@ my $opcode_config = +{
 
 # opcode名がメソッド名ではないもの
 my $opcode_to_special_method = +{
-    '02' => 'iconst_i',
-    '03' => 'iconst_i',
-    '04' => 'iconst_i',
-    '05' => 'iconst_i',
-    '06' => 'iconst_i',
-    '07' => 'iconst_i',
-    '08' => 'iconst_i',
-
     '99' => 'if',
     '9a' => 'if',
     '9b' => 'if',
@@ -144,6 +136,8 @@ sub run {
         my $opcode = $current->{opcode};
         my $operand_count = $opcode_config->{$opcode}->{operand_count};
         my $opcode_name   = $opcode_config->{$opcode}->{name};
+        use DDP;
+        p $opcode;
         my $module_name   = Mouse::Util::load_class("Opcode::".ucfirst($opcode_name));
  
         if ($opcode eq 'aa' || $opcode eq 'ab') { # has padding

@@ -9,7 +9,7 @@ our $opcode = 'b2';
 
 has operands => (
     is       => 'ro',
-    isa      => 'ArrayRef[Int]',
+    isa      => 'ArrayRef',
     default  => sub {[]}
 );
 
