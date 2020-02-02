@@ -5,7 +5,7 @@ use utf8;
 
 use Mouse;
 
-our $opcode = '12'; # 18 (0x12)
+our $opcode = '12';
 
 has operands => (
     is       => 'ro',
@@ -13,7 +13,7 @@ has operands => (
     default  => sub {[]}
 );
 
-has to_stack => (
+has operand_stack => (
     is       => 'ro',
     isa      => 'ArrayRef',
     default  => sub {[]},
@@ -25,7 +25,7 @@ sub run {
     my $symbol_name_hash = $constant_pool_entries->[$index];
 
     my $string = $constant_pool_entries->[$symbol_name_hash->{string_index}]->{string};
-    push @{$self->to_stack}, $string;
+    push @{$self->operand_stack}, $string;
 }
 
 no Mouse;

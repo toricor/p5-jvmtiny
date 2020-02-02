@@ -13,12 +13,6 @@ has operands => (
     default  => sub {[]}
 );
 
-has to_stack => (
-    is       => 'ro',
-    isa      => 'ArrayRef',
-    default  => sub {[]},
-);
-
 has operand_stack => (
     is       => 'ro',
     isa      => 'ArrayRef',

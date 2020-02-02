@@ -170,47 +170,19 @@ sub run {
                 my $arg = $code_array->[$current->{code_index}++];
                 push @args, $arg;
             }
-            my $entity = $module_name->new(operands => \@args, operand_stack => $self->_operand_stack);
+            my $entity = $module_name->new(
+                operands        => \@args,
+                operand_stack   => $self->_operand_stack,
+                local_variables => $self->_local_variables,
+            );
             $entity->run($self->constant_pool_entries);
-            @{$self->_operand_stack()} = (@{$self->_operand_stack}, @{$entity->to_stack});
+            $self->_operand_stack($entity->operand_stack);
+            $self->_local_variables($entity->local_variables) if $entity->can('local_variables');
+
             #my $method = $opcode_to_special_method->{$opcode} // $opcode_name; 
             #$self->$method($opcode, @args);
         }
     }
-}
-
-# 0xb6
-sub invokevirtual {
-    my ($self, $opcode, $indexbyte1, $indexbyte2) = @_;
-    my $constant_pool_entries = $self->constant_pool_entries;
-    my $constant_pool_index   = $self->_index_by_byte1_and_byte2($indexbyte1, $indexbyte2);
-    my $symbol_name_hash = $constant_pool_entries->[$constant_pool_index];
-
-    my $callee_info = $constant_pool_entries->[$symbol_name_hash->{name_and_type_index}];
-    my $method_name = $constant_pool_entries->[$callee_info->{name_index}]->{string};
-
-    my $argments_string = $constant_pool_entries->[$callee_info->{descriptor_index}]->{string};
-    # TODO: https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3
-    my $argments_size = 1;#(() = $argments_string =~ m/;/g); # https://shogo82148.github.io/blog/2015/04/09/count-substrings-in-perl/
-    #use DDP;
-    #p $argments_string; # AddInt: "(I)V"; HelloWorld: "(Ljava/lang/String;)V";
- 
-    #p $argments_size;   # AddInt: 0
-    my @argments;
-    for (1..$argments_size) {
-        push @argments, pop @{$self->_operand_stack}, # XXX: pop order (本当は逆からpopする必要がある) https://speakerdeck.com/memory1994/php-de-jvm-woshi-zhuang-site-hello-world-wochu-li-surumade?slide=150
-    }
-
-    my $method = pop @{$self->_operand_stack};
-#use DDP;
-#p $method;
-    my $return = $method->{callable}->$method_name(@argments);
-}
-
-# 0xb1
-sub return {
-    my ($self) = @_;
-    #die 'return';
 }
 
 # 0x2 ~ 0x8

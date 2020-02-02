@@ -13,10 +13,10 @@ has operands => (
     default  => sub {[]}
 );
 
-has to_stack => (
+has operand_stack => (
     is       => 'ro',
     isa      => 'ArrayRef',
-    default  => sub {[]},
+    required => 1,
 );
 
 sub run {
@@ -39,7 +39,7 @@ sub run {
 
     $callee_class =~ s/\//::/g;
 
-    push @{$self->to_stack}, +{
+    push @{$self->operand_stack}, +{
         callable => $callee_class->new()->$field,
         return   => $method_return,
     };
