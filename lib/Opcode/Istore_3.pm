@@ -1,11 +1,11 @@
-package Opcode::Istore;
+package Opcode::Istore_3;
 use warnings;
 use strict;
 use utf8;
 
 use Mouse;
 
-our $opcode = '36';
+our $opcode = '3e';
 
 has operands => (
     is       => 'ro',
@@ -27,9 +27,8 @@ has local_variables => (
 
 sub run {
     my ($self, $constant_pool_entries) = @_;
-    my $index = $self->operands->[0];
     my $value = pop @{$self->operand_stack};
-    $self->local_variables->[hex($index)] = $value;
+    $self->local_variables->[3] = $value;
 }
 
 no Mouse;

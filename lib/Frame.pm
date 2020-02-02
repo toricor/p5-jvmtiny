@@ -201,27 +201,6 @@ sub iconst_i {
     push @{$self->_operand_stack}, $value_map->{$opcode};
 }
 
-# 0x36
-sub istore {
-    my ($self, $opcode, $index) = @_;
-    my $value = pop @{$self->_operand_stack};
-    $self->_local_variables->[hex($index)] = $value;
-}
-
-# 0x3b ~ 0x3e
-sub istore_n {
-    my ($self, $opcode) = @_;
-    state $store_map; $store_map //= +{
-        '3b' => 0,
-        '3c' => 1,
-        '3d' => 2,
-        '3e' => 3,
-    };
-    my $value = pop @{$self->_operand_stack};
-    my $index = $store_map->{$opcode};
-    $self->_local_variables->[$index] = $value;
-}
-
 # 0x1a ~ 0x1d
 sub iload_n {
     my ($self, $opcode) = @_;
@@ -254,12 +233,6 @@ sub isub {
     my $value1 = pop @{$self->_operand_stack};
     my $result = $value1 - $value2;
     push @{$self->_operand_stack}, $result;
-}
-
-# 0x10
-sub bipush {
-    my ($self, $opcode, $byte) = @_;
-    push @{$self->_operand_stack}, hex($byte);
 }
 
 # 0x15
