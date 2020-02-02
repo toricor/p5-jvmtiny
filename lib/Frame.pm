@@ -170,10 +170,9 @@ sub run {
                 my $arg = $code_array->[$current->{code_index}++];
                 push @args, $arg;
             }
-            my $entity = $module_name->new(from_stack => \@args);
-            @{$self->_operand_stack()} = (@{$self->_operand_stack}, @{$entity->run($self->constant_pool_entries)});
-            use DDP;
-            p $self->_operand_stack;
+            my $entity = $module_name->new(operands => \@args);
+            $entity->run($self->constant_pool_entries);
+            @{$self->_operand_stack()} = (@{$self->_operand_stack}, @{$entity->to_stack});
             #my $method = $opcode_to_special_method->{$opcode} // $opcode_name; 
             #$self->$method($opcode, @args);
         }

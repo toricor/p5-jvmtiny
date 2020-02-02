@@ -7,7 +7,7 @@ use Mouse;
 
 our $opcode = 'b2';
 
-has from_stack => (
+has operands => (
     is       => 'ro',
     isa      => 'ArrayRef[Int]',
     default  => sub {[]}
@@ -22,8 +22,8 @@ has to_stack => (
 sub run {
     my ($self, $constant_pool_entries) = @_;
 
-    my $indexbyte1 = $self->from_stack->[0];
-    my $indexbyte2 = $self->from_stack->[1];
+    my $indexbyte1 = $self->operands->[0];
+    my $indexbyte2 = $self->operands->[1];
 
     my $constant_pool_index   = $self->_index_by_byte1_and_byte2($indexbyte1, $indexbyte2);
     my $symbol_name_hash      = $constant_pool_entries->[$constant_pool_index];
@@ -43,7 +43,6 @@ sub run {
         callable => $callee_class->new()->$field,
         return   => $method_return,
     };
-    return $self->to_stack;
 }
 
 sub _index_by_byte1_and_byte2 {
