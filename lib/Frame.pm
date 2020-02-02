@@ -115,11 +115,6 @@ my $opcode_to_special_method = +{
     '07' => 'iconst_i',
     '08' => 'iconst_i',
 
-    '1a' => 'iload_n',
-    '1b' => 'iload_n',
-    '1c' => 'iload_n',
-    '1d' => 'iload_n', 
-
     '99' => 'if',
     '9a' => 'if',
     '9b' => 'if',
@@ -133,11 +128,6 @@ my $opcode_to_special_method = +{
     'a2' => 'if_icmp',
     'a3' => 'if_icmp',
     'a4' => 'if_icmp',
-
-    '3b' => 'istore_n',
-    '3c' => 'istore_n',
-    '3d' => 'istore_n',
-    '3e' => 'istore_n',
 };
 
 
@@ -199,30 +189,6 @@ sub iconst_i {
         '08' => 5,
     };
     push @{$self->_operand_stack}, $value_map->{$opcode};
-}
-
-# 0x1a ~ 0x1d
-sub iload_n {
-    my ($self, $opcode) = @_;
-    state $load_map; $load_map //= +{
-        '1a' => 0,
-        '1b' => 1,
-        '1c' => 2,
-        '1d' => 3,
-    };
-    my $index = $load_map->{$opcode};
-    my $value = $self->_local_variables->[$index];
-    push @{$self->_operand_stack}, $value;
-}
-
-# 0x60
-sub iadd {
-    my ($self) = @_;
-
-    my $value1 = pop @{$self->_operand_stack};
-    my $value2 = pop @{$self->_operand_stack};
-    my $result = $value1 + $value2;
-    push @{$self->_operand_stack}, $result;
 }
 
 # 0x64
