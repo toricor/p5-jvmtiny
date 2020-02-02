@@ -201,13 +201,6 @@ sub isub {
     push @{$self->_operand_stack}, $result;
 }
 
-# 0x15
-sub iload {
-    my ($self, $opcode, $index) = @_;
-    my $value = $self->_local_variables->[hex($index)];
-    push @{$self->_operand_stack}, $value;
-}
-
 # 0x68
 sub imul {
     my ($self) = @_;
