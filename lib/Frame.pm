@@ -1,5 +1,6 @@
 package Frame;
 use Mouse;
+use Mouse::Util;
 
 use java::lang::System;
 use feature qw/state/;
@@ -151,6 +152,9 @@ sub run {
         $current->{opcode}       = $code_array->[$current->{code_index}++];
 
         my $opcode = $current->{opcode};
+        my $operand_count = $opcode_config->{$opcode}->{operand_count};
+        my $opcode_name   = $opcode_config->{$opcode}->{name};
+        my $module_name   = Mouse::Util::load_class("Opcode::".ucfirst($opcode_name));
  
         if ($opcode eq 'aa' || $opcode eq 'ab') { # has padding
             die "opcode: $opcode is unimplemented";
@@ -166,8 +170,12 @@ sub run {
                 my $arg = $code_array->[$current->{code_index}++];
                 push @args, $arg;
             }
-            my $method = $opcode_to_special_method->{$opcode} // $opcode_name; 
-            $self->$method($opcode, @args);
+            my $entity = $module_name->new(from_stack => \@args);
+            @{$self->_operand_stack()} = (@{$self->_operand_stack}, @{$entity->run($self->constant_pool_entries)});
+            use DDP;
+            p $self->_operand_stack;
+            #my $method = $opcode_to_special_method->{$opcode} // $opcode_name; 
+            #$self->$method($opcode, @args);
         }
     }
 }
