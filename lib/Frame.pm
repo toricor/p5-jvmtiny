@@ -170,49 +170,13 @@ sub run {
                 my $arg = $code_array->[$current->{code_index}++];
                 push @args, $arg;
             }
-            my $entity = $module_name->new(operands => \@args);
+            my $entity = $module_name->new(operands => \@args, operand_stack => $self->_operand_stack);
             $entity->run($self->constant_pool_entries);
             @{$self->_operand_stack()} = (@{$self->_operand_stack}, @{$entity->to_stack});
             #my $method = $opcode_to_special_method->{$opcode} // $opcode_name; 
             #$self->$method($opcode, @args);
         }
     }
-}
-
-
-# 0xb2
-sub getstatic {
-    my ($self, $opcode, $indexbyte1, $indexbyte2) = @_;
-    my $constant_pool_entries = $self->constant_pool_entries;
-    my $constant_pool_index   = $self->_index_by_byte1_and_byte2($indexbyte1, $indexbyte2);
-    my $symbol_name_hash      = $constant_pool_entries->[$constant_pool_index];
-
-    # java/lang/System
-    my $callee_class = $constant_pool_entries->[$constant_pool_entries->[$symbol_name_hash->{class_index}]->{name_index}]->{string};
-
-    # out
-    my $field = $constant_pool_entries->[$constant_pool_entries->[$symbol_name_hash->{name_and_type_index}]->{name_index}]->{string};
-
-    # out fieldの型情報(Ljava/io/PrintStream;)
-    my $method_return = $constant_pool_entries->[$constant_pool_entries->[$symbol_name_hash->{name_and_type_index}]->{descriptor_index}]->{string};
-
-    $callee_class =~ s/\//::/g;
-
-    push @{$self->_operand_stack}, +{
-        callable => $callee_class->new()->$field,
-        return   => $method_return,
-    };
-}
-
-# 0x12
-sub ldc {
-    my ($self, $opcode, $index) = @_;
-     my $constant_pool_entries = $self->constant_pool_entries;
-
-     my $symbol_name_hash = $constant_pool_entries->[$index];
-
-     my $string = $constant_pool_entries->[$symbol_name_hash->{string_index}]->{string};
-     push @{$self->_operand_stack}, $string;
 }
 
 # 0xb6
