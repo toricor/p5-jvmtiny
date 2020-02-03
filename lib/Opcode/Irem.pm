@@ -1,11 +1,11 @@
-package Opcode::Iconst_m1;
+package Opcode::Irem;
 use warnings;
 use strict;
 use utf8;
 
 use Mouse;
 
-our $opcode = '02';
+our $opcode = '70';
 
 has operands => (
     is       => 'ro',
@@ -27,7 +27,10 @@ has local_variables => (
 
 sub run {
     my ($self, $constant_pool_entries) = @_;
-    push @{$self->operand_stack}, -1;
+    my $value1 = pop @{$self->operand_stack};
+    my $value2 = pop @{$self->operand_stack};
+    my $result = $value1 % $value2;
+    push @{$self->operand_stack}, $result;
 }
 
 no Mouse;

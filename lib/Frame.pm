@@ -136,8 +136,6 @@ sub run {
         my $opcode = $current->{opcode};
         my $operand_count = $opcode_config->{$opcode}->{operand_count};
         my $opcode_name   = $opcode_config->{$opcode}->{name};
-        use DDP;
-        p $opcode;
         my $module_name   = Mouse::Util::load_class("Opcode::".ucfirst($opcode_name));
  
         if ($opcode eq 'aa' || $opcode eq 'ab') { # has padding
@@ -167,50 +165,6 @@ sub run {
             #$self->$method($opcode, @args);
         }
     }
-}
-
-# 0x2 ~ 0x8
-sub iconst_i {
-    my ($self, $opcode) = @_;
-
-    state $value_map; $value_map //= +{
-        '02' => -1,
-        '03' => 0,
-        '04' => 1,
-        '05' => 2,
-        '06' => 3,
-        '07' => 4,
-        '08' => 5,
-    };
-    push @{$self->_operand_stack}, $value_map->{$opcode};
-}
-
-# 0x64
-sub isub {
-    my ($self) = @_;
-
-    my $value2 = pop @{$self->_operand_stack};
-    my $value1 = pop @{$self->_operand_stack};
-    my $result = $value1 - $value2;
-    push @{$self->_operand_stack}, $result;
-}
-
-# 0x68
-sub imul {
-    my ($self) = @_;
-
-    my $value2 = pop @{$self->_operand_stack};
-    my $value1 = pop @{$self->_operand_stack};
-    my $result = $value1 * $value2;
-    push @{$self->_operand_stack}, $result;
-}
-
-# 0x74
-sub ineg {
-    my ($self) = @_;
-    my $value = pop @{$self->_operand_stack};
-    my $result = -1 * $value;
-    push @{$self->_operand_stack}, $result;
 }
 
 # 0x9f, 0xa1 ~ 0xa4
@@ -288,12 +242,6 @@ sub if {
         $self->_current_control->{opcode_index} + $self->_branch_offset($branch_byte1, $branch_byte2);
 }
 
-# 0x84
-sub iinc {
-    my ($self, $opcode, $index, $const) = @_;
-    $self->_local_variables->[hex($index)] += $const;
-}
-
 # 0xa7
 sub goto {
     my ($self, $opcode, $branch_byte1, $branch_byte2) = @_;
@@ -302,24 +250,9 @@ sub goto {
         $self->_current_control->{opcode_index} + $self->_branch_offset($branch_byte1, $branch_byte2);
 }
 
-# 0x70
-sub irem {
-    my ($self, $opcode) = @_;
-    my $value2 = pop @{$self->_operand_stack};
-    my $value1 = pop @{$self->_operand_stack};
-    my $result = $value1 % $value2;
-    push @{$self->_operand_stack}, $result;
-}
-
-
 #
 #
 # private
-sub _index_by_byte1_and_byte2 {
-    my ($self, $indexbyte1, $indexbyte2) = @_;
-    return (hex($indexbyte1) << 8) | hex($indexbyte2);
-}
-
 sub _branch_offset {
     my ($self, $branch_byte1, $branch_byte2) = @_;
     {

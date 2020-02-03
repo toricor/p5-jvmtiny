@@ -1,11 +1,11 @@
-package Opcode::Iconst_m1;
+package Opcode::Iinc;
 use warnings;
 use strict;
 use utf8;
 
 use Mouse;
 
-our $opcode = '02';
+our $opcode = '84';
 
 has operands => (
     is       => 'ro',
@@ -27,7 +27,10 @@ has local_variables => (
 
 sub run {
     my ($self, $constant_pool_entries) = @_;
-    push @{$self->operand_stack}, -1;
+    my ($self, $opcode, $index, $const) = @_;
+    my $index = $self->operands->[0];
+    my $const = $self->operands->[1];
+    $self->local_variables->[hex($index)] += $const;
 }
 
 no Mouse;
