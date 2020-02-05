@@ -27,7 +27,6 @@ has local_variables => (
 
 sub run {
     my ($self, $constant_pool_entries) = @_;
-    my ($self, $opcode, $index, $const) = @_;
     my $index = $self->operands->[0];
     my $const = $self->operands->[1];
     $self->local_variables->[hex($index)] += $const;

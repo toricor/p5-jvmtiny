@@ -113,15 +113,26 @@ my $opcode_to_special_method = +{
     '9c' => 'if',
     '9d' => 'if',
     '9e' => 'if',
-
-    '9f' => 'if_icmp',
-    'a0' => 'if_icmp',
-    'a1' => 'if_icmp',
-    'a2' => 'if_icmp',
-    'a3' => 'if_icmp',
-    'a4' => 'if_icmp',
 };
 
+# jump opcodes
+my $jump_opcodes = [qw/
+    if_icmpeq
+    if_icmpne
+    if_icmplt
+    if_icmpge
+    if_icmpgt
+    if_icmple
+    ifeq
+    ifne
+    iflt
+    ifge
+    ifgt
+    ifle
+    goto
+/];
+
+my $jump_opcode_exists = +{map {$_ => 1} @$jump_opcodes};
 
 sub run {
     my $self = shift;
@@ -137,33 +148,25 @@ sub run {
         my $operand_count = $opcode_config->{$opcode}->{operand_count};
         my $opcode_name   = $opcode_config->{$opcode}->{name};
         my $module_name   = Mouse::Util::load_class("Opcode::".ucfirst($opcode_name));
- 
-        if ($opcode eq 'aa' || $opcode eq 'ab') { # has padding
-            die "opcode: $opcode is unimplemented";
+
+        die "opcode: $opcode is unimplemented" unless $opcode_name;
+
+        my @args;
+        for (1..$operand_count) {
+            my $arg = $code_array->[$current->{code_index}++];
+            push @args, $arg;
         }
-        else {
-            my $operand_count = $opcode_config->{$opcode}->{operand_count};
-            my $opcode_name   = $opcode_config->{$opcode}->{name};
-
-            die "opcode: $opcode is unimplemented" unless $opcode_name;
-
-            my @args;
-            for (1..$operand_count) {
-                my $arg = $code_array->[$current->{code_index}++];
-                push @args, $arg;
-            }
-            my $entity = $module_name->new(
-                operands        => \@args,
-                operand_stack   => $self->_operand_stack,
-                local_variables => $self->_local_variables,
-            );
-            $entity->run($self->constant_pool_entries);
-            $self->_operand_stack($entity->operand_stack);
-            $self->_local_variables($entity->local_variables) if $entity->can('local_variables');
-
-            #my $method = $opcode_to_special_method->{$opcode} // $opcode_name; 
-            #$self->$method($opcode, @args);
-        }
+        my $entity = $module_name->new(
+            operands        => \@args,
+            operand_stack   => $self->_operand_stack,
+            local_variables => $self->_local_variables,
+            $jump_opcode_exists->{$opcode_name} ? (current_control_code_index => $self->_current_control->{code_index}) : (),
+            $jump_opcode_exists->{$opcode_name} ? (current_control_opcode_index => $self->_current_control->{opcode_index}) : (),
+        );
+        $entity->run($self->constant_pool_entries);
+        $self->_operand_stack($entity->operand_stack);
+        $self->_local_variables($entity->local_variables) if $entity->can('local_variables');
+        $self->_current_control->{code_index} = $entity->current_control_code_index if $jump_opcode_exists->{$opcode_name};    
     }
 }
 
@@ -238,14 +241,6 @@ sub if {
     else {
         die 'something wrong';
     }
-    $self->_current_control->{code_index} =
-        $self->_current_control->{opcode_index} + $self->_branch_offset($branch_byte1, $branch_byte2);
-}
-
-# 0xa7
-sub goto {
-    my ($self, $opcode, $branch_byte1, $branch_byte2) = @_;
-
     $self->_current_control->{code_index} =
         $self->_current_control->{opcode_index} + $self->_branch_offset($branch_byte1, $branch_byte2);
 }
