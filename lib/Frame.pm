@@ -105,16 +105,6 @@ my $opcode_config = +{
     'b6' => +{ name => 'invokevirtual', operand_count => 2 },
 };
 
-# opcode名がメソッド名ではないもの
-my $opcode_to_special_method = +{
-    '99' => 'if',
-    '9a' => 'if',
-    '9b' => 'if',
-    '9c' => 'if',
-    '9d' => 'if',
-    '9e' => 'if',
-};
-
 # jump opcodes
 my $jump_opcodes = [qw/
     if_icmpeq
@@ -167,93 +157,6 @@ sub run {
         $self->_operand_stack($entity->operand_stack);
         $self->_local_variables($entity->local_variables) if $entity->can('local_variables');
         $self->_current_control->{code_index} = $entity->current_control_code_index if $jump_opcode_exists->{$opcode_name};    
-    }
-}
-
-# 0x9f, 0xa1 ~ 0xa4
-sub if_icmp {
-    my ($self, $opcode, $branch_byte1, $branch_byte2) = @_;
-    my $value2 = hex(pop @{$self->_operand_stack});
-    my $value1 = hex(pop @{$self->_operand_stack});
-
-    my $target_index = 0;
-    # if_icmpeq
-    if ($opcode eq '9f') {
-        return unless ($value1 == $value2);
-    }
-    # if_icmpne
-    elsif ($opcode eq 'a0') {
-        return unless ($value1 != $value2);
-    }
-    # if_icmplt
-    elsif ($opcode eq 'a1') {
-        return unless ($value1 < $value2);
-    }
-    # if_icmpge
-    elsif ($opcode eq 'a2') {
-        return unless ($value1 >= $value2);
-    }
-    # if_icmpgt
-    elsif ($opcode eq 'a3') {
-        return unless ($value1 > $value2);
-    }
-    # if_icmplt
-    elsif ($opcode eq 'a4') {
-        return unless ($value1 < $value2);
-    }
-    else {
-        die 'something wrong';
-    }
-    $self->_current_control->{code_index} =
-        $self->_current_control->{opcode_index} + $self->_branch_offset($branch_byte1, $branch_byte2);
-}
-
-# 0x99 ~ 0x9e
-sub if {
-    my ($self, $opcode, $branch_byte1, $branch_byte2) = @_;
-    my $value = hex(pop @{$self->_operand_stack});
-
-    my $target_index = 0;
-    # ifeq
-    if ($opcode eq '99') {
-        return unless ($value == 0);
-    }
-    # ifne
-    elsif ($opcode eq '9a') {
-        return unless ($value != 0);
-    }
-    # iflt
-    elsif ($opcode eq '9b') {
-        return unless ($value < 0);
-    }
-    # ifge
-    elsif ($opcode eq '9c') {
-        return unless ($value >= 0);
-    }
-    # ifgt
-    elsif ($opcode eq '9d') {
-        return unless ($value > 0);
-    }
-    # iflt
-    elsif ($opcode eq '9e') {
-        return unless ($value < 0);
-    }
-    else {
-        die 'something wrong';
-    }
-    $self->_current_control->{code_index} =
-        $self->_current_control->{opcode_index} + $self->_branch_offset($branch_byte1, $branch_byte2);
-}
-
-#
-#
-# private
-sub _branch_offset {
-    my ($self, $branch_byte1, $branch_byte2) = @_;
-    {
-        no warnings 'pack';
-        my $offset = unpack("c", pack("c", (hex($branch_byte1) << 8) | hex($branch_byte2)));
-        return $offset;
     }
 }
 
