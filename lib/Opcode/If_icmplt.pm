@@ -5,7 +5,7 @@ use utf8;
 
 use Mouse;
 
-our $opcode = 'a2';
+our $opcode = 'a1';
 
 has operands => (
     is       => 'ro',
