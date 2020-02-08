@@ -139,7 +139,7 @@ sub run {
         $entity->run($self->constant_pool_entries);
 
         $self->_operand_stack($entity->operand_stack);
-        $self->_local_variables($entity->local_variables) if $entity->can('local_variables');
+        $self->_local_variables($entity->local_variables);
  
         $self->_current_control->{code_index} = $entity->current_control_code_index;
     }
