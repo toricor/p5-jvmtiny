@@ -18,7 +18,7 @@ jobs:
       matrix:
         perl-version:
           - '5.10'
-          - '5.16'
+          - '5.18'
           - 'latest'
 
     container:
