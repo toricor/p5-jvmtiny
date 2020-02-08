@@ -7,15 +7,34 @@ use Mouse;
 
 our $opcode = 'b6';
 
+my $operand_count = 2;
+
+has operand_count => (
+    is      => 'ro',
+    isa     => 'Int',
+    default => sub {$operand_count},
+);
+
 has operands => (
-    is       => 'ro',
+    is       => 'rw',
     isa      => 'ArrayRef',
-    default  => sub {[]}
 );
 
 has operand_stack => (
     is       => 'ro',
     isa      => 'ArrayRef',
+    required => 1,
+);
+
+has current_control_code_index => (
+    is       => 'rw',
+    isa      => 'Int',
+    required => 1,
+);
+
+has current_control_opcode_index => (
+    is       => 'rw',
+    isa      => 'Int',
     required => 1,
 );
 
@@ -47,6 +66,13 @@ sub run {
 #use DDP;
 #p $method;
     my $return = $method->{callable}->$method_name(@argments);
+
+    $self->current_control_code_index(
+        $self->current_control_opcode_index
+        + $self->operand_count # XXX
+        + 1
+    );
+
 }
 
 sub _index_by_byte1_and_byte2 {

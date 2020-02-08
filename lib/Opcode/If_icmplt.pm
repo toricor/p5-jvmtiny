@@ -7,10 +7,17 @@ use Mouse;
 
 our $opcode = 'a1';
 
+my $operand_count = 2;
+
+has operand_count => (
+    is      => 'ro',
+    isa     => 'Int',
+    default => sub {$operand_count},
+);
+
 has operands => (
-    is       => 'ro',
+    is       => 'rw',
     isa      => 'ArrayRef',
-    default  => sub {[]}
 );
 
 has operand_stack => (
@@ -43,9 +50,15 @@ sub run {
     my $branchbyte1 = pop @{$self->operands};
     my $value2 = hex(pop @{$self->operand_stack});
     my $value1 = hex(pop @{$self->operand_stack});
-    return unless ($value1 < $value2);
-
-    $self->current_control_code_index($self->current_control_opcode_index + $self->_branch_offset($branchbyte1, $branchbyte2));
+    if ($value1 < $value2) {
+        $self->current_control_code_index($self->current_control_opcode_index + $self->_branch_offset($branchbyte1, $branchbyte2));
+    } else {
+        $self->current_control_code_index(
+            $self->current_control_opcode_index
+            + $self->operand_count # XXX
+            + 1
+        );
+    }
 }
 
 sub _branch_offset {

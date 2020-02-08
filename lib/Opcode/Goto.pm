@@ -7,10 +7,17 @@ use Mouse;
 
 our $opcode = 'a7';
 
+my $operand_count = 2;
+
+has operand_count => (
+    is      => 'ro',
+    isa     => 'Int',
+    default => sub {$operand_count},
+);
+
 has operands => (
-    is       => 'ro',
+    is       => 'rw',
     isa      => 'ArrayRef',
-    default  => sub {[]}
 );
 
 has operand_stack => (

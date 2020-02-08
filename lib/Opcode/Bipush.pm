@@ -6,11 +6,17 @@ use utf8;
 use Mouse;
 
 our $opcode = '10';
+my $operand_count = 1;
+
+has operand_count => (
+    is      => 'ro',
+    isa     => 'Int',
+    default => sub {$operand_count},
+);
 
 has operands => (
-    is       => 'ro',
+    is       => 'rw',
     isa      => 'ArrayRef',
-    default  => sub {[]}
 );
 
 has operand_stack => (
@@ -19,10 +25,27 @@ has operand_stack => (
     required => 1,
 );
 
+has current_control_code_index => (
+    is       => 'rw',
+    isa      => 'Int',
+    required => 1,
+);
+
+has current_control_opcode_index => (
+    is       => 'rw',
+    isa      => 'Int',
+    required => 1,
+);
+
 sub run {
     my $self = shift;
     my $byte = $self->operands->[0];
     push @{$self->operand_stack}, hex($byte);
+    $self->current_control_code_index(
+        $self->current_control_opcode_index
+        + $self->operand_count # XXX
+        + 1
+    );
 }
 
 no Mouse;
