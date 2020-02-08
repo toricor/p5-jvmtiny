@@ -44,18 +44,6 @@ has current_control_opcode_index => (
     required => 1,
 );
 
-has current_control_code_index => (
-    is       => 'rw',
-    isa      => 'Int',
-    required => 1,
-);
-
-has current_control_opcode_index => (
-    is       => 'rw',
-    isa      => 'Int',
-    required => 1,
-);
-
 sub run {
     my ($self, $constant_pool_entries) = @_;
     my $branchbyte2 = pop @{$self->operands};

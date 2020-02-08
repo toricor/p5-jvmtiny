@@ -26,6 +26,12 @@ has operand_stack => (
     required => 1,
 );
 
+has local_variables => (
+    is       => 'ro',
+    isa      => 'ArrayRef',
+    required => 1,
+);
+
 has current_control_code_index => (
     is       => 'rw',
     isa      => 'Int',
