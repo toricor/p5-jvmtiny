@@ -7,10 +7,17 @@ use Mouse;
 
 our $opcode = 'b1';
 
+my $operand_count = 0;
+
+has operand_count => (
+    is      => 'ro',
+    isa     => 'Int',
+    default => sub {$operand_count},
+);
+
 has operands => (
-    is       => 'ro',
+    is       => 'rw',
     isa      => 'ArrayRef',
-    default  => sub {[]}
 );
 
 has operand_stack => (
@@ -19,7 +26,31 @@ has operand_stack => (
     required => 1,
 );
 
+has local_variables => (
+    is       => 'ro',
+    isa      => 'ArrayRef',
+    required => 1,
+);
+
+has current_control_code_index => (
+    is       => 'rw',
+    isa      => 'Int',
+    required => 1,
+);
+
+has current_control_opcode_index => (
+    is       => 'rw',
+    isa      => 'Int',
+    required => 1,
+);
+
 sub run {
+    my $self = shift;
+    $self->current_control_code_index(
+        $self->current_control_opcode_index
+        + $self->operand_count # XXX
+        + 1
+    );
     return;
 }
 
