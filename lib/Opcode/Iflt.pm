@@ -4,6 +4,7 @@ use strict;
 use utf8;
 
 use Mouse;
+with 'Opcode::Role::Runnable';
 
 our $opcode = '9b';
 
