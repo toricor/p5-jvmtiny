@@ -1,52 +1,14 @@
 package Opcode::Iinc;
-use warnings;
-use strict;
-use utf8;
 
 use Mouse;
-with 'Opcode::Role::Runnable';
+extends 'Opcode::Base';
 
-our $opcode = '84';
-
-my $operand_count = 2;
-
-has operand_count => (
-    is      => 'ro',
-    isa     => 'Int',
-    default => sub {$operand_count},
-);
-
-has operands => (
-    is       => 'rw',
-    isa      => 'ArrayRef',
-);
-
-has operand_stack => (
-    is       => 'ro',
-    isa      => 'ArrayRef',
-    required => 1,
-);
-
-has local_variables => (
-    is       => 'ro',
-    isa      => 'ArrayRef',
-    required => 1,
-);
-
-has current_control_code_index => (
-    is       => 'rw',
-    isa      => 'Int',
-    required => 1,
-);
-
-has current_control_opcode_index => (
-    is       => 'rw',
-    isa      => 'Int',
-    required => 1,
-);
+sub opcode { '84' }
+sub operand_count { 2 }
 
 sub run {
     my ($self, $constant_pool_entries) = @_;
+
     my $index = $self->operands->[0];
     my $const = $self->operands->[1];
     $self->local_variables->[hex($index)] += $const;

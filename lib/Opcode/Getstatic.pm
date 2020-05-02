@@ -3,7 +3,7 @@ package Opcode::Getstatic;
 use Mouse;
 extends 'Opcode::Base';
 
-sub opcode {'b2'};
+sub opcode { 'b2' };
 sub operand_count { 2 };
 
 sub run {

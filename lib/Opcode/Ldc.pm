@@ -1,52 +1,14 @@
 package Opcode::Ldc;
-use warnings;
-use strict;
-use utf8;
 
 use Mouse;
-with 'Opcode::Role::Runnable';
+extends 'Opcode::Base';
 
-our $opcode = '12';
-
-my $operand_count = 1;
-
-has operand_count => (
-    is      => 'ro',
-    isa     => 'Int',
-    default => sub {$operand_count},
-);
-
-has operands => (
-    is       => 'rw',
-    isa      => 'ArrayRef',
-);
-
-has operand_stack => (
-    is       => 'ro',
-    isa      => 'ArrayRef',
-    default  => sub {[]},
-);
-
-has local_variables => (
-    is       => 'ro',
-    isa      => 'ArrayRef',
-    required => 1,
-);
-
-has current_control_code_index => (
-    is       => 'rw',
-    isa      => 'Int',
-    required => 1,
-);
-
-has current_control_opcode_index => (
-    is       => 'rw',
-    isa      => 'Int',
-    required => 1,
-);
+sub opcode { '12' }
+sub operand_count { 1 }
 
 sub run {
     my ($self, $constant_pool_entries) = @_;
+
     my $index = $self->operands->[0];
     my $symbol_name_hash = $constant_pool_entries->[$index];
 
