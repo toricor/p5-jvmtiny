@@ -20,51 +20,51 @@ has major => (
 );
 
 has access_flags => (
-    is => 'ro',
-    isa  => 'Int',
+    is       => 'ro',
+    isa      => 'Int',
     required => 1,
 );
 
 has this_class => (
-    is => 'ro',
-    isa => 'Defined',
+    is       => 'ro',
+    isa      => 'Defined',
     required => 1,
 );
 
 has super_class => (
-    is => 'ro',
-    isa => 'Defined',
+    is       => 'ro',
+    isa      => 'Defined',
     required => 1,
 );
 
 has interfaces => (
-    is => 'ro',
-    isa => 'ArrayRef',
+    is      => 'ro',
+    isa     => 'ArrayRef',
     default => sub {[]},
 );
 
 has fields => (
-    is => 'ro',
-    isa => 'ArrayRef',
+    is      => 'ro',
+    isa     => 'ArrayRef',
     default => sub {[]},
 );
 
 has methods => (
-    is => 'ro',
-    isa => 'ArrayRef',
+    is       => 'ro',
+    isa      => 'ArrayRef',
     required => 1,
 );
 
 has attributes => (
-    is => 'ro',
-    isa => 'ArrayRef',
+    is      => 'ro',
+    isa     => 'ArrayRef',
     default => sub {[]},
 );
 
 
 has constant_pool_entries => (
-    is  => 'rw',
-    isa => 'ArrayRef[HashRef]',
+    is      => 'rw',
+    isa     => 'ArrayRef[HashRef]',
     default => sub {[+{}]},
 );
 

@@ -9,8 +9,8 @@ use Mouse;
 use ClassFile;
 
 has classfile_info => (
-    is      => 'ro',
-    isa     => 'ClassFile',
+    is       => 'ro',
+    isa      => 'ClassFile',
     required => 1,
 );
 
