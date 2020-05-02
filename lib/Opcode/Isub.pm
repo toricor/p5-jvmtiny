@@ -1,52 +1,14 @@
 package Opcode::Isub;
-use warnings;
-use strict;
-use utf8;
 
 use Mouse;
-with 'Opcode::Role::Runnable';
+extends 'Opcode::Base';
 
-our $opcode = '64';
-
-my $operand_count = 0;
-
-has operand_count => (
-    is      => 'ro',
-    isa     => 'Int',
-    default => sub {$operand_count},
-);
-
-has operands => (
-    is       => 'rw',
-    isa      => 'ArrayRef',
-);
-
-has operand_stack => (
-    is       => 'ro',
-    isa      => 'ArrayRef',
-    required => 1,
-);
-
-has local_variables => (
-    is       => 'ro',
-    isa      => 'ArrayRef',
-    required => 1,
-);
-
-has current_control_code_index => (
-    is       => 'rw',
-    isa      => 'Int',
-    required => 1,
-);
-
-has current_control_opcode_index => (
-    is       => 'rw',
-    isa      => 'Int',
-    required => 1,
-);
+sub opcode { '64' }
+sub operand_count { 0 }
 
 sub run {
-    my ($self, $constant_pool_entries) = @_;
+    my ($self) = @_;
+
     my $value1 = pop @{$self->operand_stack};
     my $value2 = pop @{$self->operand_stack};
     my $result = $value1 + $value2;

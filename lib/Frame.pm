@@ -3,7 +3,6 @@ use Mouse;
 use Mouse::Util;
 
 use java::lang::System;
-use feature qw/state/;
 
 # constant pool
 has constant_pool_entries => (
@@ -116,27 +115,31 @@ sub run {
         $current->{opcode_index} = int($current->{code_index});
         $current->{opcode}       = $code_array->[$current->{code_index}++];
 
-        my $opcode = $current->{opcode};
-        my $opcode_name   = $opcode_config->{$opcode}->{name};
+        my $opcode      = $current->{opcode}; # ex. b6
+        my $opcode_name = $opcode_config->{$opcode}->{name}; # ex. getstatic
+
         die "opcode: $opcode is unimplemented" unless $opcode_name;
 
-        my $module_name   = Mouse::Util::load_class("Opcode::".ucfirst($opcode_name));
+        my $module_name = Mouse::Util::load_class('Opcode::'.ucfirst($opcode_name));
 
-        my $before_current_control_code_index = $self->_current_control->{code_index};
+        my $before_current_control_code_index   = $self->_current_control->{code_index};
         my $before_current_control_opcode_index = $self->_current_control->{opcode_index};
+
+        my @operands;
+        for (1..$module_name->operand_count()) {
+            push @operands, $code_array->[$current->{code_index}++];
+        }
+
         my $entity = $module_name->new(
-            operand_stack   => $self->_operand_stack,
-            local_variables => $self->_local_variables,
+            operand_stack                => $self->_operand_stack,
+            local_variables              => $self->_local_variables,
             current_control_code_index   => $before_current_control_code_index,
             current_control_opcode_index => $before_current_control_opcode_index,
+            operands                     => \@operands,
+            constant_pool_entries        => $self->constant_pool_entries,
         );
-        my @args;
-        for (1..$entity->operand_count) {
-            my $arg = $code_array->[$current->{code_index}++];
-            push @args, $arg;
-        }
-        $entity->operands(\@args);
-        $entity->run($self->constant_pool_entries);
+
+        $entity->run();
 
         $self->_operand_stack($entity->operand_stack);
         $self->_local_variables($entity->local_variables);

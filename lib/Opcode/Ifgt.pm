@@ -1,55 +1,18 @@
 package Opcode::Ifgt;
-use warnings;
-use strict;
-use utf8;
 
 use Mouse;
-with 'Opcode::Role::Runnable';
+extends 'Opcode::Base';
 
-our $opcode = '9d';
-
-my $operand_count = 2;
-
-has operand_count => (
-    is      => 'ro',
-    isa     => 'Int',
-    default => sub {$operand_count},
-);
-
-has operands => (
-    is       => 'rw',
-    isa      => 'ArrayRef',
-);
-
-has operand_stack => (
-    is       => 'ro',
-    isa      => 'ArrayRef',
-    required => 1,
-);
-
-has local_variables => (
-    is       => 'ro',
-    isa      => 'ArrayRef',
-    required => 1,
-);
-
-has current_control_code_index => (
-    is       => 'rw',
-    isa      => 'Int',
-    required => 1,
-);
-
-has current_control_opcode_index => (
-    is       => 'rw',
-    isa      => 'Int',
-    required => 1,
-);
+sub opcode { '9d' }
+sub operand_count { 2 }
 
 sub run {
-    my ($self, $constant_pool_entries) = @_;
+    my ($self) = @_;
+
     my $branchbyte2 = pop @{$self->operands};
     my $branchbyte1 = pop @{$self->operands};
     my $value = hex(pop @{$self->operand_stack});
+
     if ($value > 0) {
         $self->current_control_code_index($self->current_control_opcode_index + $self->_branch_offset($branchbyte1, $branchbyte2));
     } else {
@@ -63,6 +26,7 @@ sub run {
 
 sub _branch_offset {
     my ($self, $branch_byte1, $branch_byte2) = @_;
+
     {
         no warnings 'pack';
         my $offset = unpack("c", pack("c", (hex($branch_byte1) << 8) | hex($branch_byte2)));
