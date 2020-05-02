@@ -120,7 +120,7 @@ sub run {
 
         die "opcode: $opcode is unimplemented" unless $opcode_name;
 
-        my $module_name = Mouse::Util::load_class("Opcode::".ucfirst($opcode_name));
+        my $module_name = Mouse::Util::load_class('Opcode::'.ucfirst($opcode_name));
 
         my $before_current_control_code_index   = $self->_current_control->{code_index};
         my $before_current_control_opcode_index = $self->_current_control->{opcode_index};
