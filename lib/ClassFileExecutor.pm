@@ -7,6 +7,7 @@ use Mouse;
 #use feature qw/state say/;
 
 use ClassFile;
+use Util;
 
 has classfile_info => (
     is       => 'ro',
@@ -21,12 +22,10 @@ sub execute {
         next if $method->{access_flags} == 0; # FIXME # do not call constuctor
 
         for my $attribute_info (@{$method->{attribute_info}}) {
-            my $code = Frame->new(+{
+            Frame->new(+{
                 constant_pool_entries => $self->classfile_info->constant_pool_entries,
-                raw_code              => $attribute_info->{code},
-                raw_code_length       => $attribute_info->{code_length},
-            });
-            $code->run();
+                code_array            => Util->get_code_arrayref($attribute_info->{code}, $attribute_info->{code_length}),
+            })->run();
         }
     }
 }

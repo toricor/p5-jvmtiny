@@ -1,4 +1,8 @@
 package Frame;
+use warnings;
+use strict;
+use utf8;
+
 use Mouse;
 use Mouse::Util;
 
@@ -26,7 +30,7 @@ has raw_code_length => (
 );
 
 # ex. [qw/b2 00 02 12 03 .../];
-has _code_array => (
+has code_array => (
     is       => 'ro',
     isa      => 'ArrayRef[Str]',
     default  => sub {
@@ -36,13 +40,13 @@ has _code_array => (
     },
 );
 
-has _operand_stack => (
+has operand_stack => (
     is      => 'rw',
     isa     => 'ArrayRef',
     default => sub {[]},
 );
 
-has _local_variables => (
+has local_variables => (
     is      => 'rw',
     isa     => 'ArrayRef',
     default => sub {[]},
@@ -59,7 +63,6 @@ has _current_control => (
         };
     },
 );
-
 
 my $opcode_config = +{
     '02' => +{ name => 'iconst_m1',  },
@@ -110,7 +113,7 @@ sub run {
 
     my $current = $self->_current_control;
 
-    my $code_array = $self->_code_array;
+    my $code_array = $self->code_array;
     while ($current->{code_index} < scalar(@$code_array)) {
         $current->{opcode_index} = int($current->{code_index});
         $current->{opcode}       = $code_array->[$current->{code_index}++];
@@ -131,18 +134,18 @@ sub run {
         }
 
         my $entity = $module_name->new(
-            operand_stack                => $self->_operand_stack,
-            local_variables              => $self->_local_variables,
+            constant_pool_entries        => $self->constant_pool_entries,
+            operands                     => \@operands,
+            operand_stack                => $self->operand_stack,
+            local_variables              => $self->local_variables,
             current_control_code_index   => $before_current_control_code_index,
             current_control_opcode_index => $before_current_control_opcode_index,
-            operands                     => \@operands,
-            constant_pool_entries        => $self->constant_pool_entries,
         );
 
         $entity->run();
 
-        $self->_operand_stack($entity->operand_stack);
-        $self->_local_variables($entity->local_variables);
+        $self->operand_stack($entity->operand_stack);
+        $self->local_variables($entity->local_variables);
  
         $self->_current_control->{code_index} = $entity->current_control_code_index;
     }
