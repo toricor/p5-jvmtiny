@@ -5,5 +5,6 @@ p5-jvmtiny is an implementation of Java Virtual Machine in Perl5.
 This is toy project.
 
 ### Run HelloWorld
-prepare classfile (Java 8) `javac -encoding UTF-8 example/HelloWorld.java`  
-and run the script `./dev_env.sh perl main.pl example/HelloWorld.class`
+- install modules `carton install`
+- generate classfile (Java 8) `javac -encoding UTF-8 example/HelloWorld.java`  
+- run the script `./dev_env.sh perl main.pl example/HelloWorld.class`
