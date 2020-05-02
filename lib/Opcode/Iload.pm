@@ -7,7 +7,7 @@ sub opcode { '1a' }
 sub operand_count { 1 }
 
 sub run {
-    my ($self, $constant_pool_entries) = @_;
+    my ($self) = @_;
 
     my $index = $self->operands->[0];
     my $value = $self->local_variables->[hex($index)];

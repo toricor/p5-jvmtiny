@@ -7,7 +7,8 @@ sub opcode { 'b6' }
 sub operand_count { 2 }
 
 sub run {
-    my ($self, $constant_pool_entries) = @_;
+    my ($self) = @_;
+    my $constant_pool_entries = $self->constant_pool_entries;
 
     my $indexbyte1 = $self->operands->[0];
     my $indexbyte2 = $self->operands->[1];

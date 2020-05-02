@@ -7,13 +7,14 @@ sub opcode { 'b2' };
 sub operand_count { 2 };
 
 sub run {
-    my ($self, $constant_pool_entries) = @_;
+    my ($self) = @_;
+    my $constant_pool_entries = $self->constant_pool_entries;
 
     my $indexbyte1 = $self->operands->[0];
     my $indexbyte2 = $self->operands->[1];
 
-    my $constant_pool_index   = $self->_index_by_byte1_and_byte2($indexbyte1, $indexbyte2);
-    my $symbol_name_hash      = $constant_pool_entries->[$constant_pool_index];
+    my $constant_pool_index = $self->_index_by_byte1_and_byte2($indexbyte1, $indexbyte2);
+    my $symbol_name_hash    = $constant_pool_entries->[$constant_pool_index];
 
     # java/lang/System
     my $callee_class = $constant_pool_entries->[$constant_pool_entries->[$symbol_name_hash->{class_index}]->{name_index}]->{string};

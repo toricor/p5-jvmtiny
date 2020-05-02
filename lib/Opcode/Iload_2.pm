@@ -7,7 +7,7 @@ sub opcode { '1c' }
 sub operand_count { 0 }
 
 sub run {
-    my ($self, $constant_pool_entries) = @_;
+    my ($self) = @_;
 
     my $value = $self->local_variables->[2];
     push @{$self->operand_stack}, $value;

@@ -7,7 +7,7 @@ sub opcode { '9a' }
 sub operand_count { 2 }
 
 sub run {
-    my ($self, $constant_pool_entries) = @_;
+    my ($self) = @_;
 
     my $branchbyte2 = pop @{$self->operands};
     my $branchbyte1 = pop @{$self->operands};

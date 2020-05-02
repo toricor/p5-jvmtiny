@@ -7,7 +7,7 @@ sub opcode { '04' }
 sub operand_count { 0 }
 
 sub run {
-    my ($self, $constant_pool_entries) = @_;
+    my ($self) = @_;
 
     push @{$self->operand_stack}, 1;
     $self->current_control_code_index(

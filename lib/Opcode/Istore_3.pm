@@ -7,7 +7,7 @@ sub opcode { '3e' }
 sub operand_count { 0 }
 
 sub run {
-    my ($self, $constant_pool_entries) = @_;
+    my ($self) = @_;
 
     my $value = pop @{$self->operand_stack};
     $self->local_variables->[3] = $value;

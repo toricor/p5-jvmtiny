@@ -7,7 +7,7 @@ sub opcode { '74' }
 sub operand_count { 0 }
 
 sub run {
-    my ($self, $constant_pool_entries) = @_;
+    my ($self) = @_;
 
     my $value1 = pop @{$self->operand_stack};
     my $result = -1 * $value1;

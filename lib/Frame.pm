@@ -136,9 +136,10 @@ sub run {
             current_control_code_index   => $before_current_control_code_index,
             current_control_opcode_index => $before_current_control_opcode_index,
             operands                     => \@operands,
+            constant_pool_entries        => $self->constant_pool_entries,
         );
 
-        $entity->run($self->constant_pool_entries);
+        $entity->run();
 
         $self->_operand_stack($entity->operand_stack);
         $self->_local_variables($entity->local_variables);

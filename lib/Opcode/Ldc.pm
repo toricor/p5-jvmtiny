@@ -7,7 +7,8 @@ sub opcode { '12' }
 sub operand_count { 1 }
 
 sub run {
-    my ($self, $constant_pool_entries) = @_;
+    my ($self) = @_;
+    my $constant_pool_entries = $self->constant_pool_entries;
 
     my $index = $self->operands->[0];
     my $symbol_name_hash = $constant_pool_entries->[$index];
