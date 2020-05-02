@@ -5,5 +5,5 @@ on develop => sub {
 };
 
 on test => sub {
-    requires 'Test::Spec', '0.54';   
+    requires 'Test::Spec', '0.54';
 };
