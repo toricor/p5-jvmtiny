@@ -131,27 +131,27 @@ describe 'Frame.run' => sub {
     # say 2
     context 'For' => sub {
         before all => sub {
-            my @values = map {hex($_)} (
-                qw/ 06 /, # iconst_3
-                qw/ 3c /, # istore_1
-                qw/ 03 /, # iconst_0
-                qw/ 3d /, # istore_2
-                qw/ 1c /, # iload_2
-                qw/ 1b /, # iload_1
-                qw/ a2 00 10/, # if_icmpge
-                qw/ b2 00 02/, # getstatic
-                qw/ 1c /, # iload_2
-                qw/ b6 00 03/, # invokevirtual
-                qw/ 84 02 01/, # iinc
-                qw/ a7 ff f1/, # goto
-                qw/ b1 / # return
+            my @codes = (
+                qw/ 06 /,       # iconst_3
+                qw/ 3c /,       # istore_1
+                qw/ 03 /,       # iconst_0
+                qw/ 3d /,       # istore_2
+                qw/ 1c /,       # iload_2
+                qw/ 1b /,       # iload_1
+                qw/ a2 00 10 /, # if_icmpge
+                qw/ b2 00 02 /, # getstatic
+                qw/ 1c /,       # iload_2
+                qw/ b6 00 03 /, # invokevirtual
+                qw/ 84 02 01 /, # iinc
+                qw/ a7 ff f1 /, # goto
+                qw/ b1 /        # return
             );
-            my $packed = pack("C*", @values);
+
             my $frame = Frame->new(+{
                 constant_pool_entries => \@cp,
-                raw_code              => $packed,
-                raw_code_length       => scalar(@values),
+                code_array            => \@codes,
             });
+
             trap {
                 $frame->run();
             };

@@ -15,29 +15,11 @@ has constant_pool_entries => (
     required => 1,
 );
 
-# binary
-has raw_code => (
-    is       => 'ro',
-    isa      => 'Defined',
-    required => 1,
-);
-
-# length(10)
-has raw_code_length => (
-    is       => 'ro',
-    isa      => 'Int',
-    required => 1,
-);
-
 # ex. [qw/b2 00 02 12 03 .../];
 has code_array => (
     is       => 'ro',
     isa      => 'ArrayRef[Str]',
-    default  => sub {
-        my $self = shift;
-        my $len  = $self->raw_code_length;
-        return [map {sprintf("%02x", $_)} unpack("C[$len]", $self->raw_code)];
-    },
+    required => 1,
 );
 
 has operand_stack => (

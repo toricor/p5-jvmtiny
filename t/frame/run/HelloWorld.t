@@ -132,17 +132,18 @@ describe 'Frame.run' => sub {
     # println("Hello World!")
     context 'HelloWorld' => sub {
         before all => sub {
-            my @values = map {hex($_)} (
-                qw/B2 00 02/, # getstatic
-                qw/12 03/,    # ldc
-                qw/B6 00 04/, # invokevirtual
+            my @codes = (
+                qw/ b2 00 02 /, # getstatic
+                qw/ 12 03 /,    # ldc
+                qw/ b6 00 04 /, # invokevirtual
+                qw/ b1 /,       # return
             );
-            my $packed = pack("C*", @values);
+
             my $frame = Frame->new(+{
                 constant_pool_entries => \@hello_world_cp,
-                raw_code              => $packed,
-                raw_code_length       => scalar(@values),
+                code_array            => \@codes,
             });
+
             trap {
                 $frame->run();
             };

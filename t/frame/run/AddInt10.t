@@ -125,24 +125,24 @@ describe 'Frame.run' => sub {
     # println(10+20)
     context 'AddInt10' => sub {
         before all => sub {
-            my @values = map {hex($_)} (
-                qw/10 0a/,    # bipush
-                qw/3c/,       # iconst_1
-                qw/10 14/,    # bipush
-                qw/3d/,       # iconst_2
-                qw/b2 00 02/, # getstatic
-                qw/1b/,       # iload_1
-                qw/1c/,       # iload_2
-                qw/60/,       # iadd
-                qw/b6 00 03/, # invokevirtual
-                qw/b1/,       # return
+            my @codes = (
+                qw/ 10 0a /,    # bipush
+                qw/ 3c /,       # iconst_1
+                qw/ 10 14 /,    # bipush
+                qw/ 3d /,       # iconst_2
+                qw/ b2 00 02 /, # getstatic
+                qw/ 1b /,       # iload_1
+                qw/ 1c /,       # iload_2
+                qw/ 60 /,       # iadd
+                qw/ b6 00 03 /, # invokevirtual
+                qw/ b1 /,       # return
             );
-            my $packed = pack("C*", @values);
+
             my $frame = Frame->new(+{
                 constant_pool_entries => \@add_int_10_cp,
-                raw_code              => $packed,
-                raw_code_length       => scalar(@values),
+                code_array            => \@codes,
             });
+
             trap {
                 $frame->run();
             };
