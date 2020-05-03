@@ -3,6 +3,8 @@ use utf8;
 use warnings;
 
 use Frame;
+use Util;
+
 use Test::Spec;
 
 # Java8 (javac -encoding UTF-8 example/For.java)
@@ -149,6 +151,7 @@ describe 'Frame.run' => sub {
 
             my $frame = Frame->new(+{
                 constant_pool_entries => \@cp,
+                opcode_modules        => [ map { Mouse::Util::load_class("Opcode::$_") } Util->get_valid_opcode_names() ],
                 code_array            => \@codes,
             });
 
