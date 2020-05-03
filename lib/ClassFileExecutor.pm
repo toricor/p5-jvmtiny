@@ -4,9 +4,9 @@ use strict;
 use utf8;
 
 use Mouse;
-#use feature qw/state say/;
 
 use ClassFile;
+use Frame;
 use Util;
 
 has classfile_info => (
@@ -15,8 +15,14 @@ has classfile_info => (
     required => 1,
 );
 
+has opcode_modules => (
+    is       => 'ro',
+    isa      => 'ArrayRef[Str]',
+    required => 1,
+);
+
 sub execute {
-    my $self = shift;
+    my ($self) = @_;
 
     for my $method (@{$self->classfile_info->methods}) {
         next if $method->{access_flags} == 0; # FIXME # do not call constuctor
@@ -24,6 +30,7 @@ sub execute {
         for my $attribute_info (@{$method->{attribute_info}}) {
             Frame->new(+{
                 constant_pool_entries => $self->classfile_info->constant_pool_entries,
+                opcode_modules        => $self->opcode_modules,
                 code_array            => Util->get_code_arrayref($attribute_info->{code}, $attribute_info->{code_length}),
             })->run();
         }
