@@ -229,6 +229,7 @@ sub read_class_file {
     my @fields;
     for my $i (1..$fields_count) {
         # TODO
+        die "fields are not implemented";
     }
 
     my $methods_count = read_unsigned_short();
