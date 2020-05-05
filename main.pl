@@ -5,9 +5,10 @@ use warnings;
 use lib './lib';
 
 use Mouse::Util;
-use ClassFileReader;
-use ClassFileExecutor;
-use Util;
+
+use JVM::ClassFileReader;
+use JVM::ClassFileExecutor;
+use JVM::Util;
 
 sub main {
     # 1) LOAD MODULES
@@ -15,17 +16,17 @@ sub main {
     # 3) EXECUTE THE CODE
     
     # 1. LOAD MODULES
-    my @java_packages  = map { Mouse::Util::load_class($_) } Util->get_java_packages();
-    my @opcode_modules = map { Mouse::Util::load_class("Opcode::$_") } Util->get_valid_opcode_names();
+    my @java_packages  = map { Mouse::Util::load_class($_) } JVM::Util->get_java_packages();
+    my @opcode_modules = map { Mouse::Util::load_class("JVM::Opcode::$_") } JVM::Util->get_valid_opcode_names();
 
     # 2. READ A CLASS FILE
     my $classfile_path = $ARGV[0];
-    my $classfile_info = ClassFileReader->new(
+    my $classfile_info = JVM::ClassFileReader->new(
         classfile_path => $classfile_path
     )->read_class_file();
 
     # 3. EXECUTE THE CODE
-    ClassFileExecutor->new(+{
+    JVM::ClassFileExecutor->new(+{
         classfile_info => $classfile_info,
         opcode_modules => \@opcode_modules,
     })->execute();
