@@ -21,19 +21,16 @@ sub run {
 
     my $argments_string = $constant_pool_entries->[$callee_info->{descriptor_index}]->{string};
     # TODO: https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3
-    my $argments_size = 1;#(() = $argments_string =~ m/;/g); # https://shogo82148.github.io/blog/2015/04/09/count-substrings-in-perl/
+    my $argments_size = 1; # XXX
     #use DDP;
     #p $argments_string; # AddInt: "(I)V"; HelloWorld: "(Ljava/lang/String;)V";
- 
-    #p $argments_size;   # AddInt: 0
     my @argments;
     for (1..$argments_size) {
-        push @argments, pop @{$self->operand_stack}, # XXX: pop order (本当は逆からpopする必要がある) https://speakerdeck.com/memory1994/php-de-jvm-woshi-zhuang-site-hello-world-wochu-li-surumade?slide=150
+        push @argments, pop @{$self->operand_stack};
     }
 
     my $method = pop @{$self->operand_stack};
-    #use DDP;
-    #p $method;
+
     my $return = $method->{callable}->$method_name(@argments);
 
     $self->current_control_code_index(
@@ -41,7 +38,6 @@ sub run {
         + $self->operand_count # XXX
         + 1
     );
-
 }
 
 sub _index_by_byte1_and_byte2 {
