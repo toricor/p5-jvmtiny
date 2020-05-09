@@ -1,4 +1,5 @@
 requires 'Mouse', '2.5.9';
+requires 'MouseX::Types', '0.06';
 
 on develop => sub {
     requires 'Data::Printer', '0.40';
