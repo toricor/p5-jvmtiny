@@ -33,11 +33,7 @@ sub run {
 
     my $return = $method->{callable}->$method_name(@argments);
 
-    $self->next_opcode_index(
-        $self->base_index
-        + $self->operand_count # XXX
-        + 1
-    );
+    $self->next_opcode_index($self->base_index + $self->operand_count + 1);
 }
 
 sub _index_by_byte1_and_byte2 {

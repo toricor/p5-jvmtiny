@@ -13,11 +13,7 @@ sub run {
     my $value = $self->local_variables->[hex($index)];
     push @{$self->operand_stack}, $value;
 
-    $self->next_opcode_index(
-        $self->base_index
-        + $self->operand_count # XXX
-        + 1
-    );
+    $self->next_opcode_index($self->base_index + $self->operand_count + 1);
 }
 
 no Mouse;

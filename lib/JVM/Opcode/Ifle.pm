@@ -16,11 +16,7 @@ sub run {
     if ($value <= 0) {
         $self->next_opcode_index($self->base_index + $self->_branch_offset($branchbyte1, $branchbyte2));
     } else {
-        $self->next_opcode_index(
-            $self->base_index
-            + $self->operand_count # XXX
-            + 1
-        );
+        $self->next_opcode_index($self->base_index + $self->operand_count + 1);
     }
 }
 

@@ -34,7 +34,7 @@ sub run {
 
     $self->next_opcode_index(
         $self->base_index
-        + $self->operand_count # XXX
+        + $self->operand_count
         + 1
     );
 }
