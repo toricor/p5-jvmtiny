@@ -17,7 +17,6 @@ sub main {
     
     # 1. LOAD MODULES
     my @java_packages  = map { Mouse::Util::load_class($_) } JVM::Util->get_java_packages();
-    my @opcode_modules = map { Mouse::Util::load_class("JVM::Opcode::$_") } JVM::Util->get_valid_opcode_names();
 
     # 2. READ A CLASS FILE
     my $classfile_path = $ARGV[0];
@@ -28,7 +27,6 @@ sub main {
     # 3. EXECUTE THE CODE
     JVM::VM->new(+{
         classfile_info => $classfile_info,
-        opcode_modules => \@opcode_modules,
     })->execute();
 }
 
