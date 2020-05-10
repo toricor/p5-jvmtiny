@@ -8,22 +8,22 @@ sub operand_count { 2 };
 
 sub run {
     my ($self) = @_;
-    my $constant_pool_entries = $self->constant_pool_entries;
+    my $constant_pools = $self->constant_pools;
 
     my $indexbyte1 = $self->operands->[0];
     my $indexbyte2 = $self->operands->[1];
 
     my $constant_pool_index = $self->_index_by_byte1_and_byte2($indexbyte1, $indexbyte2);
-    my $symbol_name_hash    = $constant_pool_entries->[$constant_pool_index];
+    my $symbol_name_hash    = $constant_pools->[$constant_pool_index];
 
     # java/lang/System
-    my $callee_class = $constant_pool_entries->[$constant_pool_entries->[$symbol_name_hash->{class_index}]->{name_index}]->{string};
+    my $callee_class = $constant_pools->[$constant_pools->[$symbol_name_hash->{class_index}]->{name_index}]->{string};
 
     # out
-    my $field = $constant_pool_entries->[$constant_pool_entries->[$symbol_name_hash->{name_and_type_index}]->{name_index}]->{string};
+    my $field = $constant_pools->[$constant_pools->[$symbol_name_hash->{name_and_type_index}]->{name_index}]->{string};
 
     # out fieldの型情報(Ljava/io/PrintStream;)
-    my $method_return = $constant_pool_entries->[$constant_pool_entries->[$symbol_name_hash->{name_and_type_index}]->{descriptor_index}]->{string};
+    my $method_return = $constant_pools->[$constant_pools->[$symbol_name_hash->{name_and_type_index}]->{descriptor_index}]->{string};
 
     $callee_class =~ s/\//::/g;
 

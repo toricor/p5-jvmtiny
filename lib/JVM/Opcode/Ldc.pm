@@ -8,12 +8,12 @@ sub operand_count { 1 }
 
 sub run {
     my ($self) = @_;
-    my $constant_pool_entries = $self->constant_pool_entries;
+    my $constant_pools = $self->constant_pools;
 
     my $index = $self->operands->[0];
-    my $symbol_name_hash = $constant_pool_entries->[$index];
+    my $symbol_name_hash = $constant_pools->[$index];
 
-    my $string = $constant_pool_entries->[$symbol_name_hash->{string_index}]->{string};
+    my $string = $constant_pools->[$symbol_name_hash->{string_index}]->{string};
     push @{$self->operand_stack}, $string;
 
     $self->current_control_code_index(

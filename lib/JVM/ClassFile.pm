@@ -61,7 +61,7 @@ has attributes => (
     default => sub {[]},
 );
 
-has constant_pool_entries => (
+has constant_pools => (
     is      => 'rw',
     isa     => 'ArrayRef[HashRef]',
     default => sub {[+{}]},

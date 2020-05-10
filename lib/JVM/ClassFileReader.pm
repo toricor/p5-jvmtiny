@@ -45,12 +45,12 @@ sub read_byte {
 }
 
 sub read_attribute {
-    my ($constant_pool_entries) = @_;
+    my ($constant_pools) = @_;
 
     my $attribute_name_index = read_unsigned_short();
     my $attribute_length = read_unsigned_int();
 
-    my $name = $constant_pool_entries->[$attribute_name_index]->{string}; # attribute name
+    my $name = $constant_pools->[$attribute_name_index]->{string}; # attribute name
     my %result = (
         name             => $name,
         attribute_length => $attribute_length,
@@ -85,7 +85,7 @@ sub read_attribute {
 
         my @attributes;
         for my $i (1..$result{attributes_count}) {
-            my $attribute = read_attribute($constant_pool_entries);
+            my $attribute = read_attribute($constant_pools);
             push @attributes, $attribute;
         }
         $result{attributes} = \@attributes;
@@ -170,7 +170,7 @@ sub read_class_file {
     my $major = read_unsigned_short();
 
     ## constant pool
-    my @constant_pool_entries = (+{}); # 後でアクセスしやすいように
+    my @constant_pools = (+{}); # 後でアクセスしやすいように
     my $constant_pool_count = read_unsigned_short();
 
     for my $i (1..$constant_pool_count-1) {
@@ -210,7 +210,7 @@ sub read_class_file {
             die "$tag is unimplemented";
         }
 
-        push @constant_pool_entries, +{
+        push @constant_pools, +{
             tag => $tag,
             %entry,
         };
@@ -239,13 +239,13 @@ sub read_class_file {
     for (1..$methods_count) {
         my %method = (
             access_flags     => read_unsigned_short(),     # メソッドへのアクセス権 (<init>: 0x00)
-            name_index       => $constant_pool_entries[read_unsigned_short()]{string}, # メソッド名
-            descriptor_index => $constant_pool_entries[read_unsigned_short()]{string}, # 引数の情報
+            name_index       => $constant_pools[read_unsigned_short()]{string}, # メソッド名
+            descriptor_index => $constant_pools[read_unsigned_short()]{string}, # 引数の情報
             attribute_info   => [],
         );
         my $attributes_count = read_unsigned_short(); # 属性の数
         for (1..$attributes_count) {
-            push @{$method{attribute_info}}, read_attribute(\@constant_pool_entries);    
+            push @{$method{attribute_info}}, read_attribute(\@constant_pools);    
         }
         push @methods, \%method;
     }
@@ -253,13 +253,13 @@ sub read_class_file {
     my $attribute_count = read_unsigned_short();
     my @attributes;
     for (1..$attribute_count) {
-        push @attributes, read_attribute(\@constant_pool_entries);
+        push @attributes, read_attribute(\@constant_pools);
     }
 
     return JVM::ClassFile->new(+{
         minor        => $minor,
         major        => $major,
-        constant_pool_entries => \@constant_pool_entries,
+        constant_pools => \@constant_pools,
         access_flags => $access_flags,
         this_class   => $this_class,
         super_class  => $super_class,

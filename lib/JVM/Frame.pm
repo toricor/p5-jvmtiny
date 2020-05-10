@@ -9,7 +9,7 @@ use Mouse::Util;
 use java::lang::System;
 
 # constant pool
-has constant_pool_entries => (
+has constant_pools => (
     is       => 'ro',
     isa      => 'ArrayRef[HashRef]',
     required => 1,
@@ -89,7 +89,7 @@ sub run {
         }
 
         my $entity = $module_name->new(
-            constant_pool_entries        => $self->constant_pool_entries,
+            constant_pools        => $self->constant_pools,
             operands                     => \@operands,
             operand_stack                => $self->operand_stack,
             local_variables              => $self->local_variables,

@@ -45,7 +45,7 @@ has current_control_opcode_index => (
     required => 1,
 );
 
-has constant_pool_entries => (
+has constant_pools => (
     is       => 'ro',
     isa      => 'ArrayRef[HashRef]',
     required => 1,

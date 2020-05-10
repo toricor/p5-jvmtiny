@@ -18,7 +18,7 @@ has classfile_info => (
     required => 1,
 );
 
-has opcode_modules => (
+has _opcode_modules => (
     is       => 'ro',
     isa      => ArrayRef,
     builder  => sub {
@@ -32,9 +32,9 @@ sub execute {
     my $main_method = $self->classfile_info->get_method('main', '([Ljava/lang/String;)V');
 
     JVM::Frame->new(+{
-        constant_pool_entries => $self->classfile_info->constant_pool_entries,
-        opcode_modules        => $self->opcode_modules,
-        code_array            => JVM::Util->get_code_arrayref(
+        constant_pools => $self->classfile_info->constant_pools,
+        opcode_modules => $self->_opcode_modules,
+        code_array     => JVM::Util->get_code_arrayref(
             $main_method->{attribute_info}->[0]->{code},
             $main_method->{attribute_info}->[0]->{code_length}
         ),
