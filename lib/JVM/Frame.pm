@@ -79,15 +79,10 @@ has opcode_index => (
 sub run {
     my $self = shift;
 
-    while ($self->code_index < scalar(@{$self->code_array})) {
-        $self->opcode_index(int($self->code_index));
-
-        my $opcode      = $self->code_array->[$self->opcode_index]; # ex. b6
+    while ($self->opcode_index < scalar(@{$self->code_array})) {
+        my $opcode      = $self->code_array->[$self->opcode_index];   # ex. b6
         my $module_name = $self->_opcode_to_opcode_module->{$opcode}; # ex. +{ b6 => JVM::Opcode::GetStatic, ... }
-        die "opcode: $opcode is unimplemented" unless $module_name;
-
-        my $before_code_index   = $self->code_index;
-        my $before_opcode_index = $self->opcode_index;
+        die "opcode: $opcode is not implemented" unless $module_name;
 
         my @operands;
         for (1..$module_name->operand_count()) {
@@ -95,20 +90,16 @@ sub run {
         }
 
         my $entity = $module_name->new(
-            constant_pools        => $self->constant_pools,
-            operands              => \@operands,
-            operand_stack         => $self->operand_stack,
-            local_variables       => $self->local_variables,
-            next_opcode_index   => $before_code_index,
-            base_index => $before_opcode_index,
+            constant_pools  => $self->constant_pools,
+            operands        => \@operands,
+            operand_stack   => $self->operand_stack,
+            local_variables => $self->local_variables,
+            base_index      => $self->opcode_index,
         );
 
         $entity->run($self->frame_stack);
 
-        $self->operand_stack($entity->operand_stack);
-        $self->local_variables($entity->local_variables);
-
-        $self->code_index($entity->next_opcode_index);
+        $self->opcode_index($entity->next_opcode_index);
     }
 }
 

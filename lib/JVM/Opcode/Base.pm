@@ -44,7 +44,7 @@ has next_opcode_index => (
 has base_index => (
     is       => 'rw',
     isa      => Int,
-    default  => sub {0},
+    required => 1,
 );
 
 has constant_pools => (
