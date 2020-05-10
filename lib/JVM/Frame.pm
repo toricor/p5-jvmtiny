@@ -99,8 +99,8 @@ sub run {
             operands              => \@operands,
             operand_stack         => $self->operand_stack,
             local_variables       => $self->local_variables,
-            current_control_code_index   => $before_code_index,
-            current_control_opcode_index => $before_opcode_index,
+            next_opcode_index   => $before_code_index,
+            base_index => $before_opcode_index,
         );
 
         $entity->run($self->frame_stack);
@@ -108,7 +108,7 @@ sub run {
         $self->operand_stack($entity->operand_stack);
         $self->local_variables($entity->local_variables);
 
-        $self->code_index($entity->current_control_code_index);
+        $self->code_index($entity->next_opcode_index);
     }
 }
 

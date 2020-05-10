@@ -13,8 +13,8 @@ sub run {
     my $result = -1 * $value1;
     push @{$self->operand_stack}, $result;
 
-    $self->current_control_code_index(
-        $self->current_control_opcode_index
+    $self->next_opcode_index(
+        $self->base_index
         + $self->operand_count # XXX
         + 1
     );

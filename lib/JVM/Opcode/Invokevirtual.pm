@@ -33,8 +33,8 @@ sub run {
 
     my $return = $method->{callable}->$method_name(@argments);
 
-    $self->current_control_code_index(
-        $self->current_control_opcode_index
+    $self->next_opcode_index(
+        $self->base_index
         + $self->operand_count # XXX
         + 1
     );

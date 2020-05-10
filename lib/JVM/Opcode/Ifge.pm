@@ -14,10 +14,10 @@ sub run {
     my $value = hex(pop @{$self->operand_stack});
 
     if ($value >= 0) {
-        $self->current_control_code_index($self->current_control_opcode_index + $self->_branch_offset($branchbyte1, $branchbyte2));
+        $self->next_opcode_index($self->base_index + $self->_branch_offset($branchbyte1, $branchbyte2));
     } else {
-        $self->current_control_code_index(
-            $self->current_control_opcode_index
+        $self->next_opcode_index(
+            $self->base_index
             + $self->operand_count # XXX
             + 1
         );
