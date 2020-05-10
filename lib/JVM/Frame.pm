@@ -8,8 +8,13 @@ use Mouse::Util;
 
 use java::lang::System;
 
+has frame_stack => (
+    is  => 'ro',
+    isa => 'Defined',
+);
+
 # constant pool
-has constant_pool_entries => (
+has constant_pools => (
     is       => 'ro',
     isa      => 'ArrayRef[HashRef]',
     required => 1,
@@ -17,9 +22,9 @@ has constant_pool_entries => (
 
 # ex. [qw/b2 00 02 12 03 .../];
 has code_array => (
-    is       => 'ro',
+    is       => 'rw',
     isa      => 'ArrayRef[Str]',
-    required => 1,
+    default  => sub {[]},
 );
 
 # ex. ['JVM::Opcode::GetStatic', ...]
@@ -61,7 +66,6 @@ has _current_control => (
         return +{
             code_index   => 0,    # current control index in code array
             opcode_index => 0,    # current opcode's index
-            opcode       => '00', # current opcode
         };
     },
 );
@@ -89,10 +93,10 @@ sub run {
         }
 
         my $entity = $module_name->new(
-            constant_pool_entries        => $self->constant_pool_entries,
-            operands                     => \@operands,
-            operand_stack                => $self->operand_stack,
-            local_variables              => $self->local_variables,
+            constant_pools        => $self->constant_pools,
+            operands              => \@operands,
+            operand_stack         => $self->operand_stack,
+            local_variables       => $self->local_variables,
             current_control_code_index   => $before_current_control_code_index,
             current_control_opcode_index => $before_current_control_opcode_index,
         );
