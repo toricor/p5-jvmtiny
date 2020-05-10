@@ -61,12 +61,23 @@ has attributes => (
     default => sub {[]},
 );
 
-
 has constant_pool_entries => (
     is      => 'rw',
     isa     => 'ArrayRef[HashRef]',
     default => sub {[+{}]},
 );
+
+sub get_method {
+    my ($self, $method_name, $method_descriptor) = @_; # "main", "([Ljava/lang/String;)V"
+
+    for my $method (@{$self->methods}) {
+        if ( $method->{name_index} eq $method_name && $method->{descriptor_index} eq $method_descriptor ) {
+            return $method;
+        }
+    }
+    die "the method is not defined; name: $method_name, descriptor: $method_descriptor";
+
+}
 
 no Mouse;
 __PACKAGE__->meta->make_immutable;

@@ -7,7 +7,7 @@ use lib './lib';
 use Mouse::Util;
 
 use JVM::ClassFileReader;
-use JVM::ClassFileExecutor;
+use JVM::VM;
 use JVM::Util;
 
 sub main {
@@ -26,7 +26,7 @@ sub main {
     )->read_class_file();
 
     # 3. EXECUTE THE CODE
-    JVM::ClassFileExecutor->new(+{
+    JVM::VM->new(+{
         classfile_info => $classfile_info,
         opcode_modules => \@opcode_modules,
     })->execute();
