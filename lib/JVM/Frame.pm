@@ -61,7 +61,6 @@ has _current_control => (
         return +{
             code_index   => 0,    # current control index in code array
             opcode_index => 0,    # current opcode's index
-            opcode       => '00', # current opcode
         };
     },
 );
@@ -90,9 +89,9 @@ sub run {
 
         my $entity = $module_name->new(
             constant_pools        => $self->constant_pools,
-            operands                     => \@operands,
-            operand_stack                => $self->operand_stack,
-            local_variables              => $self->local_variables,
+            operands              => \@operands,
+            operand_stack         => $self->operand_stack,
+            local_variables       => $self->local_variables,
             current_control_code_index   => $before_current_control_code_index,
             current_control_opcode_index => $before_current_control_opcode_index,
         );
