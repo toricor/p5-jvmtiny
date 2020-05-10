@@ -14,11 +14,7 @@ sub run {
     my $result = $value1 % $value2;
     push @{$self->operand_stack}, $result;
 
-    $self->current_control_code_index(
-        $self->current_control_opcode_index
-        + $self->operand_count # XXX
-        + 1
-    );
+    $self->next_opcode_index($self->base_index + $self->operand_count + 1);
 }
 
 no Mouse;

@@ -13,11 +13,7 @@ sub run {
     my $const = $self->operands->[1];
     $self->local_variables->[hex($index)] += $const;
 
-    $self->current_control_code_index(
-        $self->current_control_opcode_index
-        + $self->operand_count # XXX
-        + 1
-    );
+    $self->next_opcode_index($self->base_index + $self->operand_count + 1);
 }
 
 no Mouse;

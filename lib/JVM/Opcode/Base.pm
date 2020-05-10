@@ -8,6 +8,8 @@ with 'JVM::Opcode::Role::OpcodeName';
 with 'JVM::Opcode::Role::OperandCount';
 with 'JVM::Opcode::Role::Runnable';
 
+use JVM::Util::MouseType qw/ArrayRef Int/;
+
 sub opcode {
     die 'override me';
 }
@@ -18,30 +20,30 @@ sub operand_count {
 
 has operands => (
     is       => 'rw',
-    isa      => 'ArrayRef',
+    isa      => ArrayRef,
 );
 
 has operand_stack => (
     is       => 'ro',
-    isa      => 'ArrayRef',
+    isa      => ArrayRef,
     required => 1,
 );
 
 has local_variables => (
     is       => 'ro',
-    isa      => 'ArrayRef',
+    isa      => ArrayRef,
     required => 1,
 );
 
-has current_control_code_index => (
+has next_opcode_index => (
     is       => 'rw',
-    isa      => 'Int',
-    required => 1,
+    isa      => Int,
+    default  => sub {1},
 );
 
-has current_control_opcode_index => (
+has base_index => (
     is       => 'rw',
-    isa      => 'Int',
+    isa      => Int,
     required => 1,
 );
 

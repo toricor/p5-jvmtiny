@@ -12,7 +12,7 @@ sub run {
     my $branchbyte2 = pop @{$self->operands};
     my $branchbyte1 = pop @{$self->operands};
 
-    $self->current_control_code_index($self->current_control_opcode_index + $self->_branch_offset($branchbyte1, $branchbyte2));
+    $self->next_opcode_index($self->base_index + $self->_branch_offset($branchbyte1, $branchbyte2));
 }
 
 sub _branch_offset {

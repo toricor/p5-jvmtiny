@@ -6,6 +6,8 @@ use utf8;
 use Mouse;
 use Mouse::Util;
 
+use JVM::Util::MouseType qw/ArrayRef HashRef UInt/;
+
 use java::lang::System;
 
 has frame_stack => (
@@ -36,7 +38,8 @@ has opcode_modules => (
 
 has _opcode_to_opcode_module => (
     is       => 'ro',
-    isa      => 'HashRef',
+    isa      => HashRef,
+    lazy     => 1,
     builder  => sub {
         my $self = shift;
         my %opcode_to_opcode_module;
@@ -49,64 +52,54 @@ has _opcode_to_opcode_module => (
 
 has operand_stack => (
     is      => 'rw',
-    isa     => 'ArrayRef',
+    isa     => ArrayRef,
     default => sub {[]},
 );
 
 has local_variables => (
     is      => 'rw',
-    isa     => 'ArrayRef',
+    isa     => ArrayRef,
     default => sub {[]},
 );
 
-has _current_control => (
+# current control index in code array
+has code_index => (
     is      => 'rw',
-    isa     => 'HashRef',
-    default => sub {
-        return +{
-            code_index   => 0,    # current control index in code array
-            opcode_index => 0,    # current opcode's index
-        };
-    },
+    isa     => UInt,
+    default => sub {0},
+);
+
+# current opcode's index
+has opcode_index => (
+    is      => 'rw',
+    isa     => UInt,
+    default => sub {0},
 );
 
 sub run {
     my $self = shift;
 
-    my $current = $self->_current_control;
-    my $code_array = $self->code_array;
-
-    while ($current->{code_index} < scalar(@$code_array)) {
-        $current->{opcode_index} = int($current->{code_index});
-        $current->{opcode}       = $code_array->[$current->{code_index}++];
-
-        my $opcode      = $current->{opcode}; # ex. b6
+    while ($self->opcode_index < scalar(@{$self->code_array})) {
+        my $opcode      = $self->code_array->[$self->opcode_index];   # ex. b6
         my $module_name = $self->_opcode_to_opcode_module->{$opcode}; # ex. +{ b6 => JVM::Opcode::GetStatic, ... }
-        die "opcode: $opcode is unimplemented" unless $module_name;
-
-        my $before_current_control_code_index   = $self->_current_control->{code_index};
-        my $before_current_control_opcode_index = $self->_current_control->{opcode_index};
+        die "opcode: $opcode is not implemented" unless $module_name;
 
         my @operands;
         for (1..$module_name->operand_count()) {
-            push @operands, $code_array->[$current->{code_index}++];
+            push @operands, $self->code_array->[$_+$self->opcode_index];
         }
 
         my $entity = $module_name->new(
-            constant_pools        => $self->constant_pools,
-            operands              => \@operands,
-            operand_stack         => $self->operand_stack,
-            local_variables       => $self->local_variables,
-            current_control_code_index   => $before_current_control_code_index,
-            current_control_opcode_index => $before_current_control_opcode_index,
+            constant_pools  => $self->constant_pools,
+            operands        => \@operands,
+            operand_stack   => $self->operand_stack,
+            local_variables => $self->local_variables,
+            base_index      => $self->opcode_index,
         );
 
-        $entity->run();
+        $entity->run($self->frame_stack);
 
-        $self->operand_stack($entity->operand_stack);
-        $self->local_variables($entity->local_variables);
- 
-        $self->_current_control->{code_index} = $entity->current_control_code_index;
+        $self->opcode_index($entity->next_opcode_index);
     }
 }
 

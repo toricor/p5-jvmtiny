@@ -9,11 +9,7 @@ sub operand_count { 0 }
 sub run {
     my $self = shift;
 
-    $self->current_control_code_index(
-        $self->current_control_opcode_index
-        + $self->operand_count # XXX
-        + 1
-    );
+    $self->next_opcode_index($self->base_index + $self->operand_count + 1);
     return;
 }
 
