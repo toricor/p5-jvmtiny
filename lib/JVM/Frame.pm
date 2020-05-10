@@ -8,6 +8,11 @@ use Mouse::Util;
 
 use java::lang::System;
 
+has frame_stack => (
+    is  => 'ro',
+    isa => 'Defined',
+);
+
 # constant pool
 has constant_pools => (
     is       => 'ro',
@@ -17,9 +22,9 @@ has constant_pools => (
 
 # ex. [qw/b2 00 02 12 03 .../];
 has code_array => (
-    is       => 'ro',
+    is       => 'rw',
     isa      => 'ArrayRef[Str]',
-    required => 1,
+    default  => sub {[]},
 );
 
 # ex. ['JVM::Opcode::GetStatic', ...]

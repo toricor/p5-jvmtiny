@@ -18,28 +18,30 @@ has classfile_info => (
     required => 1,
 );
 
-has _opcode_modules => (
-    is       => 'ro',
-    isa      => ArrayRef,
-    builder  => sub {
-        return [map { Mouse::Util::load_class("JVM::Opcode::$_") } JVM::Util->get_valid_opcode_names()];
-    }
+has frame_stack => (
+    is        => 'ro',
+    isa       => 'ArrayRef',
+    default   => sub {
+        my $self = shift;
+        return [JVM::Frame->new(+{
+            constant_pools => $self->classfile_info->constant_pools,
+            opcode_modules => $self->get_opcode_modules(),
+        })];
+    },
 );
 
 sub execute {
     my ($self) = @_;
 
-    my $main_method = $self->classfile_info->get_method('main', '([Ljava/lang/String;)V');
-
-    JVM::Frame->new(+{
-        constant_pools => $self->classfile_info->constant_pools,
-        opcode_modules => $self->_opcode_modules,
-        code_array     => JVM::Util->get_code_arrayref(
-            $main_method->{attribute_info}->[0]->{code},
-            $main_method->{attribute_info}->[0]->{code_length}
-        ),
-    })->run();
+    while (scalar(@{$self->frame_stack}) > 0) {
+        my $frame = pop @{$self->frame_stack};
+        $frame->run($self->frame_stack);
+    }
 }
+
+sub get_opcode_modules {
+    return [map { Mouse::Util::load_class("JVM::Opcode::$_") } JVM::Util->get_valid_opcode_names()];
+};
 
 sub load_java_classes {
     my $self = shift;

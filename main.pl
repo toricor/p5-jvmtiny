@@ -4,30 +4,28 @@ use strict;
 use warnings;
 use lib './lib';
 
-use Mouse::Util;
-
 use JVM::ClassFileReader;
 use JVM::VM;
 use JVM::Util;
 
 sub main {
-    # 1) LOAD MODULES
-    # 2) READ A CLASS FILE
-    # 3) EXECUTE THE CODE
-    
-    # 1. LOAD MODULES
-    my @java_packages  = map { Mouse::Util::load_class($_) } JVM::Util->get_java_packages();
-
-    # 2. READ A CLASS FILE
     my $classfile_path = $ARGV[0];
     my $classfile_info = JVM::ClassFileReader->new(
         classfile_path => $classfile_path
     )->read_class_file();
 
-    # 3. EXECUTE THE CODE
-    JVM::VM->new(+{
+    my $vm = JVM::VM->new(+{
         classfile_info => $classfile_info,
-    })->execute();
+    });
+
+    my $main_method = $classfile_info->get_method('main', '([Ljava/lang/String;)V');
+    $vm->frame_stack->[0]->code_array(JVM::Util->get_code_arrayref(
+        $main_method->{attribute_info}->[0]->{code},
+        $main_method->{attribute_info}->[0]->{code_length},
+    ));
+
+    $vm->load_java_classes();
+    $vm->execute();
 }
 
 main();
@@ -41,12 +39,13 @@ __END__
 =head1 SYNOPSIS
 
 carton install
+
 carton exec perl main.pl HelloWorld.class
 or ./dev_env.sh perl main.pl HelloWorld.class (faster)
 
 =head1 DESCRIPTION
 
-    JVM by Perl5;
+    JVM in Perl5;
     read a *.class and run it
 
 =cut
