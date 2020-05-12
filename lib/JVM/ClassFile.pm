@@ -76,7 +76,6 @@ sub get_method {
         }
     }
     die "the method is not defined; name: $method_name, descriptor: $method_descriptor";
-
 }
 
 no Mouse;

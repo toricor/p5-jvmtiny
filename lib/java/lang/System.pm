@@ -5,8 +5,8 @@ use java::io::PrintStream;
 has out => (
     is      => 'ro',
     isa     => 'java::io::PrintStream',
+    lazy    => 1,
     builder => sub {
-        my $self = shift;
         return java::io::PrintStream->new();
     },
 );

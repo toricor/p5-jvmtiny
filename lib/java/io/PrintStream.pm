@@ -2,8 +2,8 @@ package java::io::PrintStream;
 use Mouse;
 
 sub println {
-    my ($self, $args) = @_;
-    print "$args\n";
+    my ($self, $arg) = @_;
+    print "$arg\n";
 }
 
 no Mouse;

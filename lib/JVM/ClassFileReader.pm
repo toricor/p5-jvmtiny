@@ -9,7 +9,7 @@ use JVM::ClassFile;
 
 has classfile_path => (
     is      => 'ro',
-    isa     => 'Str', # XXX
+    isa     => 'Str',
     required => 1,
 );
 
