@@ -11,7 +11,6 @@ use JVM::Frame;
 use JVM::Util;
 use JVM::Util::MouseType qw/ArrayRef/;
 
-
 has classfile_info => (
     is       => 'ro',
     isa      => 'JVM::ClassFile',
