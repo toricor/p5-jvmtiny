@@ -143,8 +143,8 @@ describe 'Frame.run' => sub {
 
             my $frame = JVM::Frame->new(+{
                 constant_pools => \@hello_world_cp,
-                opcode_modules        => [ map { Mouse::Util::load_class("JVM::Opcode::$_") } JVM::Util->get_valid_opcode_names() ],
-                code_array            => \@codes,
+                opcode_modules => [ map { Mouse::Util::load_class("JVM::Opcode::$_") } JVM::Util->get_valid_opcode_names() ],
+                code_array     => \@codes,
             });
 
             trap {

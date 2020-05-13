@@ -16,11 +16,7 @@ sub run {
     my $string = $constant_pools->[$symbol_name_hash->{string_index}]->{string};
     push @{$self->operand_stack}, $string;
 
-    $self->next_opcode_index(
-        $self->base_index
-        + $self->operand_count
-        + 1
-    );
+    $self->next_opcode_index($self->base_index + $self->operand_count + 1);
 }
 
 no Mouse;
