@@ -4,10 +4,10 @@ use java::io::PrintStream;
 
 has out => (
     is      => 'ro',
-    isa     => 'java::io::PrintStream',
+    isa     => 'Str',
     lazy    => 1,
     builder => sub {
-        return java::io::PrintStream->new();
+        return 'java::io::PrintStream';
     },
 );
 
