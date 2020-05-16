@@ -6,7 +6,7 @@ use utf8;
 use Mouse;
 use Mouse::Util;
 
-use JVM::Util::MouseType qw/ArrayRef HashRef UInt/;
+use JVM::Util::MouseType qw/ArrayRef HashRef UInt OpcodeModuleName ByteStr/;
 
 use java::lang::System;
 
@@ -25,14 +25,13 @@ has constant_pools => (
 # ex. [qw/b2 00 02 12 03 .../];
 has code_array => (
     is       => 'rw',
-    isa      => 'ArrayRef[Str]',
+    isa      => ArrayRef.'['.ByteStr.']',
     default  => sub {[]},
 );
 
-# ex. ['JVM::Opcode::GetStatic', ...]
 has opcode_modules => (
     is       => 'ro',
-    isa      => 'ArrayRef[Str]',
+    isa      => ArrayRef.'['.OpcodeModuleName.']',
     required => 1,
 );
 

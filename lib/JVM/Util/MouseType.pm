@@ -21,6 +21,8 @@ use MouseX::Types
         qw/
         UInt
         PositiveInt
+        ByteStr
+        OpcodeModuleName
         /,
     ];
 
@@ -37,6 +39,17 @@ subtype PositiveInt,
     as Int, 
     where { $_ > 0 },
     message { 'Int is not larger than 0' };
+
+subtype OpcodeModuleName,
+    as Str,
+    where { $_ =~ /JVM::Opcode::[A-Z][a-z_0-9]+/ },
+    message { "opcode module name is like 'JVM::Opcode::Getstatic'"};
+
+# hexdumped: b6, 02, ...
+subtype ByteStr,
+    as Str,
+    where { $_ =~ /[a-z0-9]{2}/ },
+    message { 'exactly **2** chars are required' };
 
 no Mouse::Util::TypeConstraints;
 1;
