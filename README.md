@@ -7,4 +7,4 @@ This is toy project.
 ### Run HelloWorld
 - install modules `carton install`
 - generate classfile (Java 8) `javac -encoding UTF-8 example/HelloWorld.java`  
-- run the script `./dev_env.sh perl main.pl example/HelloWorld.class`
+- run the script `./dev_env.sh perl main.pl example/HelloWorld.class` or `carton exec -- perl main.pl example/HelloWorld.class`
